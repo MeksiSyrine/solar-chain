@@ -1,0 +1,44 @@
+<nav class="sticky top-0 z-30 border-b border-emerald-900/40 bg-slate-950/70 backdrop-blur">
+  <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+    <div class="flex items-center gap-4">
+      <a routerLink="/" class="text-xl font-semibold tracking-wide text-emerald-400">SolarChain</a>
+      <div class="hidden items-center gap-2 md:flex">
+        <a routerLink="/admin" routerLinkActive="text-emerald-300" class="text-sm text-slate-300">Admin</a>
+        <a routerLink="/producer" routerLinkActive="text-emerald-300" class="text-sm text-slate-300">Producteur</a>
+        <a routerLink="/consumer" routerLinkActive="text-emerald-300" class="text-sm text-slate-300">Consommateur</a>
+        <a routerLink="/history" routerLinkActive="text-emerald-300" class="text-sm text-slate-300">Historique</a>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span
+        class="rounded px-2 py-1 text-xs"
+        [class.bg-emerald-600/30]="isCorrectNetwork$ | async"
+        [class.text-emerald-200]="isCorrectNetwork$ | async"
+        [class.bg-amber-600/25]="(isCorrectNetwork$ | async) === false"
+        [class.text-amber-200]="(isCorrectNetwork$ | async) === false"
+      >
+        {{ (isCorrectNetwork$ | async) ? 'Reseau OK' : 'Mauvais reseau' }}
+      </span>
+
+      <button
+        *ngIf="(isCorrectNetwork$ | async) === false"
+        mat-stroked-button
+        color="accent"
+        (click)="switchNetwork()"
+      >
+        Changer reseau
+      </button>
+
+      <app-wallet-badge *ngIf="isConnected$ | async"></app-wallet-badge>
+
+      <button *ngIf="isConnected$ | async" mat-stroked-button color="warn" (click)="disconnect()">
+        Déconnecter
+      </button>
+
+      <button *ngIf="!(isConnected$ | async)" mat-flat-button color="primary" (click)="connect()">
+        Connecter MetaMask
+      </button>
+    </div>
+  </div>
+</nav>
