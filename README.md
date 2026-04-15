@@ -158,3 +158,16 @@ npm --prefix "D:\TPs\ICE4\blockchain\solarchain\solarchain-contracts" run node
 
 - Scenario E2E minimal: `docs/e2e-minimal-scenario.md`
 - Checklist de recette finale: `docs/final-recipe-checklist.md`
+
+
+Ordre de lancement correct (obligatoire)
+
+Terminal A: démarrer node Hardhat et le laisser ouvert.
+cd D:\TPs\ICE4\blockchain\solarchain\solarchain-contracts
+npm run node
+Terminal B: bootstrap sur ce même node actif.
+cd D:\TPs\ICE4\blockchain\solarchain\solarchain-contracts
+npm run bootstrap:local
+Terminal C: frontend.
+cd D:\TPs\ICE4\blockchain\solarchain\solarchain-frontend
+npm start

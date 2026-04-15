@@ -1,5 +1,6 @@
-import { Component, inject } from "@angular/core";
-import { DecimalPipe } from "@angular/common";
+import { Component, DestroyRef, inject } from "@angular/core";
+import { DecimalPipe, NgIf } from "@angular/common";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -10,11 +11,13 @@ import { MatTableModule } from "@angular/material/table";
 import { formatEther } from "ethers";
 import { Offer } from "../../core/models/offer.model";
 import { EnergyMarketService } from "../../core/services/energy-market.service";
+import { Web3Service } from "../../core/services/web3.service";
 
 @Component({
   selector: "app-consumer-page",
   standalone: true,
   imports: [
+    NgIf,
     DecimalPipe,
     ReactiveFormsModule,
     MatCardModule,
@@ -85,6 +88,8 @@ import { EnergyMarketService } from "../../core/services/energy-market.service";
 })
 export class ConsumerPage {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly web3Service = inject(Web3Service);
   private readonly marketService = inject(EnergyMarketService);
   private readonly snackBar = inject(MatSnackBar);
 
@@ -99,6 +104,14 @@ export class ConsumerPage {
   errorMessage = "";
 
   constructor() {
+    this.web3Service.account$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.loadOffers().catch(() => undefined);
+    });
+
+    this.web3Service.chainId$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.loadOffers().catch(() => undefined);
+    });
+
     this.loadOffers().catch(() => undefined);
   }
 
@@ -138,11 +151,27 @@ export class ConsumerPage {
   }
 
   private async loadOffers() {
+    this.loading = true;
+    this.errorMessage = "";
+
     try {
+      if (!this.web3Service.currentAccount) {
+        this.offers = [];
+        return;
+      }
+
+      if (!this.web3Service.isCorrectNetwork$.value) {
+        this.offers = [];
+        this.errorMessage = "Mauvais reseau detecte. Basculez sur le reseau Hardhat local.";
+        return;
+      }
+
       this.offers = await this.marketService.getActiveOffers();
     } catch (error) {
       this.errorMessage = (error as Error).message;
       this.offers = [];
+    } finally {
+      this.loading = false;
     }
   }
 }
