@@ -1,0 +1,23 @@
+<div class="inline-flex items-center gap-1" [class.cursor-default]="readonly" [class.cursor-pointer]="!readonly" (mouseleave)="onMouseLeave()">
+  <button
+    *ngFor="let star of stars"
+    type="button"
+    class="relative leading-none transition-transform duration-150"
+    [ngClass]="[sizeClass, readonly ? '' : 'hover:scale-110 focus:scale-110']"
+    [disabled]="readonly"
+    [attr.aria-label]="'Noter ' + star + ' etoiles'"
+    [attr.aria-disabled]="readonly"
+    (mouseenter)="onMouseEnter(star)"
+    (click)="onSelect(star)"
+  >
+    <span class="text-slate-600">★</span>
+
+    <span
+      class="absolute inset-0 overflow-hidden text-solar-400"
+      [style.width.%]="getStarFill(star)"
+      aria-hidden="true"
+    >
+      ★
+    </span>
+  </button>
+</div>

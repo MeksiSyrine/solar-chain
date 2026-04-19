@@ -5,3 +5,4 @@ export * as energyMarketSol from "./EnergyMarket.sol";
 export * as meterOracleSol from "./MeterOracle.sol";
 export { EnergyCertificate__factory } from "./EnergyCertificate__factory";
 export { EnergyToken__factory } from "./EnergyToken__factory";
+export { ReputationSystem__factory } from "./ReputationSystem__factory";

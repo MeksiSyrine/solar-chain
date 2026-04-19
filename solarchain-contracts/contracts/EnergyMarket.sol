@@ -18,6 +18,10 @@ interface IEnergyCertificate {
     function mint(address to, CertificateData calldata data) external returns (uint256);
 }
 
+interface IReputationSystem {
+    function recordTrade(uint256 tradeId, address consumer, address producer) external;
+}
+
 contract EnergyMarket is ReentrancyGuard, Ownable {
     struct Offer {
         uint256 id;
@@ -43,6 +47,7 @@ contract EnergyMarket is ReentrancyGuard, Ownable {
 
     IERC20 public immutable energyToken;
     IEnergyCertificate public certificateContract;
+    IReputationSystem public reputationSystem;
 
     uint256 private nextOfferId = 1;
     uint256 private nextTradeId = 1;
@@ -90,6 +95,10 @@ contract EnergyMarket is ReentrancyGuard, Ownable {
         address previous = address(certificateContract);
         certificateContract = IEnergyCertificate(certificateAddress);
         emit CertificateContractUpdated(previous, certificateAddress);
+    }
+
+    function setReputationSystem(address reputationAddress) external onlyOwner {
+        reputationSystem = IReputationSystem(reputationAddress);
     }
 
     function createOffer(uint256 quantityKwh, uint256 pricePerKwhWei) external {
@@ -187,6 +196,10 @@ contract EnergyMarket is ReentrancyGuard, Ownable {
         }
 
         emit EnergySold(offerId, tradeId, msg.sender, offer.producer, quantityKwh, totalPriceWei);
+
+        if (address(reputationSystem) != address(0)) {
+            reputationSystem.recordTrade(tradeId, msg.sender, offer.producer);
+        }
     }
 
     function cancelOffer(uint256 offerId) external nonReentrant {

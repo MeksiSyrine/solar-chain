@@ -6,14 +6,27 @@ import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar";
 import { RouterLink } from "@angular/router";
 import { formatEther } from "ethers";
 import { Offer } from "../../core/models/offer.model";
+import { MarketTransaction } from "../../core/models/transaction.model";
 import { EnergyCertificateService } from "../../core/services/energy-certificate.service";
 import { EnergyMarketService } from "../../core/services/energy-market.service";
+import { ReputationService } from "../../core/services/reputation.service";
 import { Web3Service } from "../../core/services/web3.service";
+import { ProducerReputationComponent } from "../../shared/components/producer-reputation/producer-reputation.component";
+import { StarRatingComponent } from "../../shared/components/star-rating/star-rating.component";
 
 @Component({
   selector: "app-consumer-page",
   standalone: true,
-  imports: [NgIf, NgFor, DecimalPipe, ReactiveFormsModule, RouterLink, MatSnackBarModule],
+  imports: [
+    NgIf,
+    NgFor,
+    DecimalPipe,
+    ReactiveFormsModule,
+    RouterLink,
+    MatSnackBarModule,
+    ProducerReputationComponent,
+    StarRatingComponent
+  ],
   template: `
     <section class="page-enter space-y-6">
       <header class="glass-card border border-solar/25 p-6">
@@ -70,6 +83,9 @@ import { Web3Service } from "../../core/services/web3.service";
               <div>
                 <p class="text-xs uppercase tracking-wide text-text-secondary">Offre #{{ offer.id }}</p>
                 <p class="mt-1 text-sm text-text-secondary">Producteur {{ shortAddress(offer.producer) }}</p>
+                <div class="mt-2">
+                  <app-producer-reputation [producerAddress]="offer.producer"></app-producer-reputation>
+                </div>
               </div>
               <span class="rounded-full border border-solar/35 bg-solar-glow px-2 py-1 text-xs text-solar-300">
                 {{ toEth(offer.pricePerKwhWei) | number: '1.4-6' }} ETH/kWh
@@ -86,6 +102,45 @@ import { Web3Service } from "../../core/services/web3.service";
             <div class="mt-4 flex items-center justify-between gap-3">
               <p class="text-sm text-text-secondary">Total estimé (1 kWh): {{ toEth(offer.pricePerKwhWei) | number: '1.4-6' }} ETH</p>
               <button class="btn-primary px-4 py-2 text-sm" (click)="openBuyModal(offer)">Acheter</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="glass-card border border-border-subtle p-6">
+        <div class="mb-3 flex items-center justify-between gap-3">
+          <h2 class="text-lg font-semibold text-text-primary">Mes achats</h2>
+          <span class="rounded-full border border-border-subtle bg-bg-elevated px-3 py-1 text-xs text-text-secondary">
+            {{ myTrades.length }} trade(s)
+          </span>
+        </div>
+
+        <div *ngIf="myTrades.length === 0" class="rounded-xl border border-border-subtle bg-bg-elevated p-4 text-sm text-text-secondary">
+          Aucun achat pour le moment.
+        </div>
+
+        <div *ngIf="myTrades.length > 0" class="space-y-3">
+          <article *ngFor="let trade of myTrades" class="rounded-xl border border-border-subtle bg-bg-elevated p-4">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p class="text-xs uppercase tracking-wide text-text-secondary">Trade #{{ trade.id }}</p>
+                <p class="mt-1 text-sm text-text-secondary">Producteur {{ shortAddress(trade.producer) }} • {{ trade.quantityKwh }} kWh</p>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button
+                  *ngIf="canRateByTrade[trade.id]"
+                  class="btn-secondary px-3 py-1.5 text-xs"
+                  (click)="openRatePanel(trade)"
+                >
+                  ⭐ Noter
+                </button>
+
+                <div *ngIf="!canRateByTrade[trade.id] && myRatingByTrade[trade.id]" class="flex items-center gap-2">
+                  <app-star-rating [rating]="myRatingByTrade[trade.id]" [readonly]="true" size="sm"></app-star-rating>
+                  <span class="text-xs text-text-secondary">Note deja soumise</span>
+                </div>
+              </div>
             </div>
           </article>
         </div>
@@ -127,6 +182,30 @@ import { Web3Service } from "../../core/services/web3.service";
           </form>
         </div>
       </div>
+
+      <div *ngIf="showRatePanel && tradeToRate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4">
+        <div class="glass-card w-full max-w-lg border border-solar/30 p-6">
+          <div class="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-lg font-semibold text-text-primary">Comment evaluez-vous cet achat ?</h3>
+              <p class="mt-1 text-sm text-text-secondary">Trade #{{ tradeToRate.id }} - Producteur {{ shortAddress(tradeToRate.producer) }}</p>
+            </div>
+            <button class="btn-secondary px-3 py-1.5 text-xs" (click)="closeRatePanel()">Fermer</button>
+          </div>
+
+          <div class="rounded-xl border border-border-subtle bg-bg-elevated p-4">
+            <app-star-rating [rating]="pendingScore" size="lg" (ratingChange)="onPendingScoreChange($event)"></app-star-rating>
+            <p class="mt-2 text-sm text-text-secondary">Selection actuelle: {{ pendingScore || 0 }} / 5</p>
+          </div>
+
+          <div class="mt-4 flex items-center justify-end gap-2">
+            <button class="btn-secondary px-4 py-2" (click)="closeRatePanel()">Plus tard</button>
+            <button class="btn-primary px-4 py-2" [disabled]="pendingScore < 1 || ratingLoading" (click)="submitRating()">
+              Soumettre ma note
+            </button>
+          </div>
+        </div>
+      </div>
   `
 })
 export class ConsumerPage {
@@ -135,6 +214,7 @@ export class ConsumerPage {
   readonly web3Service = inject(Web3Service);
   private readonly marketService = inject(EnergyMarketService);
   private readonly certificateService = inject(EnergyCertificateService);
+  private readonly reputationService = inject(ReputationService);
   private readonly snackBar = inject(MatSnackBar);
 
   readonly buyForm = this.formBuilder.group({
@@ -147,6 +227,13 @@ export class ConsumerPage {
   selectedOffer: Offer | null = null;
   showBuyModal = false;
   totalCertificates = 0;
+  myTrades: MarketTransaction[] = [];
+  canRateByTrade: Record<number, boolean> = {};
+  myRatingByTrade: Record<number, number> = {};
+  showRatePanel = false;
+  tradeToRate: MarketTransaction | null = null;
+  pendingScore = 0;
+  ratingLoading = false;
   loading = false;
   errorMessage = "";
 
@@ -170,15 +257,18 @@ export class ConsumerPage {
     this.web3Service.account$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.loadOffers().catch(() => undefined);
       this.loadCertificatesCount().catch(() => undefined);
+      this.loadMyTrades().catch(() => undefined);
     });
 
     this.web3Service.chainId$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.loadOffers().catch(() => undefined);
       this.loadCertificatesCount().catch(() => undefined);
+      this.loadMyTrades().catch(() => undefined);
     });
 
     this.loadOffers().catch(() => undefined);
     this.loadCertificatesCount().catch(() => undefined);
+    this.loadMyTrades().catch(() => undefined);
   }
 
   selectOffer(offer: Offer) {
@@ -218,6 +308,22 @@ export class ConsumerPage {
     this.selectedOffer = null;
   }
 
+  openRatePanel(trade: MarketTransaction): void {
+    this.tradeToRate = trade;
+    this.pendingScore = this.myRatingByTrade[trade.id] || 0;
+    this.showRatePanel = true;
+  }
+
+  closeRatePanel(): void {
+    this.showRatePanel = false;
+    this.tradeToRate = null;
+    this.pendingScore = 0;
+  }
+
+  onPendingScoreChange(score: number): void {
+    this.pendingScore = score;
+  }
+
   async buy() {
     if (this.buyForm.invalid) {
       return;
@@ -241,8 +347,14 @@ export class ConsumerPage {
       });
       await this.loadOffers();
       await this.loadCertificatesCount();
+      await this.loadMyTrades();
       this.buyForm.reset();
       this.closeBuyModal();
+
+      const latest = this.myTrades.length > 0 ? this.myTrades[0] : null;
+      if (latest && this.canRateByTrade[latest.id]) {
+        this.openRatePanel(latest);
+      }
     } catch (error) {
       this.snackBar.open((error as Error).message, "Fermer", {
         duration: 4000,
@@ -255,6 +367,30 @@ export class ConsumerPage {
 
   toEth(wei: string): number {
     return Number(formatEther(wei));
+  }
+
+  async submitRating(): Promise<void> {
+    if (!this.tradeToRate || this.pendingScore < 1) {
+      return;
+    }
+
+    this.ratingLoading = true;
+    try {
+      await this.reputationService.submitRating(BigInt(this.tradeToRate.id), this.pendingScore);
+      this.snackBar.open("Merci, votre note a ete soumise", "OK", {
+        duration: 2500,
+        panelClass: ["solar-snackbar", "solar-snackbar--success"]
+      });
+      await this.loadMyTrades();
+      this.closeRatePanel();
+    } catch (error) {
+      this.snackBar.open((error as Error).message, "Fermer", {
+        duration: 4000,
+        panelClass: ["solar-snackbar", "solar-snackbar--error"]
+      });
+    } finally {
+      this.ratingLoading = false;
+    }
   }
 
   private async loadOffers() {
@@ -293,6 +429,77 @@ export class ConsumerPage {
       this.totalCertificates = await this.certificateService.getTotalCertificates(account);
     } catch {
       this.totalCertificates = 0;
+    }
+  }
+
+  private async loadMyTrades() {
+    const account = this.web3Service.currentAccount;
+    if (!account || !this.web3Service.isCorrectNetwork$.value) {
+      this.myTrades = [];
+      this.canRateByTrade = {};
+      this.myRatingByTrade = {};
+      return;
+    }
+
+    try {
+      const trades = await this.marketService.getTradeHistory();
+      const accountLower = account.toLowerCase();
+      this.myTrades = trades
+        .filter((trade) => trade.consumer.toLowerCase() === accountLower)
+        .sort((a, b) => b.id - a.id);
+
+      const canRateEntries = await Promise.all(
+        this.myTrades.map(async (trade) => {
+          try {
+            const allowed = await this.reputationService.canRate(BigInt(trade.id), account);
+            return [trade.id, allowed] as const;
+          } catch {
+            return [trade.id, false] as const;
+          }
+        })
+      );
+
+      const canRateMap: Record<number, boolean> = {};
+      for (const [tradeId, allowed] of canRateEntries) {
+        canRateMap[tradeId] = allowed;
+      }
+
+      const ratingMap: Record<number, number> = {};
+      const producerMap = new Map<string, string>();
+      for (const trade of this.myTrades) {
+        const key = trade.producer.toLowerCase();
+        if (!producerMap.has(key)) {
+          producerMap.set(key, trade.producer);
+        }
+      }
+
+      const producerList = Array.from(producerMap.values());
+      await Promise.all(
+        producerList.map(async (producerAddress) => {
+          try {
+            const ratings = await this.reputationService.getRatingsByProducer(producerAddress);
+            for (const rating of ratings) {
+              if (rating.consumer.toLowerCase() !== accountLower) {
+                continue;
+              }
+              ratingMap[Number(rating.tradeId)] = rating.score;
+            }
+          } catch {
+            return;
+          }
+        })
+      );
+
+      for (const tradeId of Object.keys(ratingMap)) {
+        canRateMap[Number(tradeId)] = false;
+      }
+
+      this.canRateByTrade = canRateMap;
+      this.myRatingByTrade = ratingMap;
+    } catch {
+      this.myTrades = [];
+      this.canRateByTrade = {};
+      this.myRatingByTrade = {};
     }
   }
 }

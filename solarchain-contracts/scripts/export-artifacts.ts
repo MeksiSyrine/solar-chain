@@ -10,6 +10,7 @@ type DeploymentFile = {
     meterOracle: string;
     energyMarket: string;
     energyCertificate?: string;
+    reputationSystem?: string;
   };
 };
 
@@ -36,6 +37,7 @@ async function writeEnvironmentFile(
       energyMarket: string;
       meterOracle: string;
       energyCertificate: string;
+      reputationSystem: string;
     };
   }
 ) {
@@ -77,6 +79,17 @@ async function main() {
         "EnergyCertificate.json"
       ),
       frontendFile: path.join(frontendContractsPath, "EnergyCertificate.json")
+    },
+    {
+      name: "ReputationSystem",
+      artifactPath: path.join(
+        process.cwd(),
+        "artifacts",
+        "contracts",
+        "ReputationSystem.sol",
+        "ReputationSystem.json"
+      ),
+      frontendFile: path.join(frontendContractsPath, "ReputationSystem.json")
     }
   ];
 
@@ -97,7 +110,8 @@ async function main() {
       energyToken: deployment.contracts.energyToken,
       energyMarket: deployment.contracts.energyMarket,
       meterOracle: deployment.contracts.meterOracle,
-      energyCertificate: deployment.contracts.energyCertificate || ""
+      energyCertificate: deployment.contracts.energyCertificate || "",
+      reputationSystem: deployment.contracts.reputationSystem || ""
     }
   });
 
@@ -109,7 +123,8 @@ async function main() {
       energyToken: deployment.contracts.energyToken,
       energyMarket: deployment.contracts.energyMarket,
       meterOracle: deployment.contracts.meterOracle,
-      energyCertificate: deployment.contracts.energyCertificate || ""
+      energyCertificate: deployment.contracts.energyCertificate || "",
+      reputationSystem: deployment.contracts.reputationSystem || ""
     }
   });
 

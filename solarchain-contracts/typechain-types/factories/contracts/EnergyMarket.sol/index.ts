@@ -3,3 +3,4 @@
 /* eslint-disable */
 export { EnergyMarket__factory } from "./EnergyMarket__factory";
 export { IEnergyCertificate__factory } from "./IEnergyCertificate__factory";
+export { IReputationSystem__factory } from "./IReputationSystem__factory";

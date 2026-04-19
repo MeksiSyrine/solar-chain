@@ -634,6 +634,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "reputationSystem",
+      "outputs": [
+        {
+          "internalType": "contract IReputationSystem",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -642,6 +655,19 @@
         }
       ],
       "name": "setCertificateContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "reputationAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setReputationSystem",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

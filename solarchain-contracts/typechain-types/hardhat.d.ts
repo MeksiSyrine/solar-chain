@@ -98,6 +98,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IEnergyCertificate__factory>;
     getContractFactory(
+      name: "IReputationSystem",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IReputationSystem__factory>;
+    getContractFactory(
       name: "EnergyToken",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.EnergyToken__factory>;
@@ -109,6 +113,10 @@ declare module "hardhat/types/runtime" {
       name: "MeterOracle",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MeterOracle__factory>;
+    getContractFactory(
+      name: "ReputationSystem",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ReputationSystem__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -216,6 +224,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IEnergyCertificate>;
     getContractAt(
+      name: "IReputationSystem",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IReputationSystem>;
+    getContractAt(
       name: "EnergyToken",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -230,6 +243,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.MeterOracle>;
+    getContractAt(
+      name: "ReputationSystem",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ReputationSystem>;
 
     deployContract(
       name: "Ownable",
@@ -316,6 +334,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IEnergyCertificate>;
     deployContract(
+      name: "IReputationSystem",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IReputationSystem>;
+    deployContract(
       name: "EnergyToken",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.EnergyToken>;
@@ -327,6 +349,10 @@ declare module "hardhat/types/runtime" {
       name: "MeterOracle",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MeterOracle>;
+    deployContract(
+      name: "ReputationSystem",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ReputationSystem>;
 
     deployContract(
       name: "Ownable",
@@ -434,6 +460,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IEnergyCertificate>;
     deployContract(
+      name: "IReputationSystem",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IReputationSystem>;
+    deployContract(
       name: "EnergyToken",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -448,6 +479,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MeterOracle>;
+    deployContract(
+      name: "ReputationSystem",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ReputationSystem>;
 
     // default types
     getContractFactory(

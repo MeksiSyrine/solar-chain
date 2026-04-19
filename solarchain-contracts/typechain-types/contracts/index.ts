@@ -7,3 +7,4 @@ import type * as meterOracleSol from "./MeterOracle.sol";
 export type { meterOracleSol };
 export type { EnergyCertificate } from "./EnergyCertificate";
 export type { EnergyToken } from "./EnergyToken";
+export type { ReputationSystem } from "./ReputationSystem";

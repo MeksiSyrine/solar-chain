@@ -4,6 +4,7 @@ import path from "node:path";
 import {
   EnergyCertificate__factory,
   EnergyMarket__factory,
+  ReputationSystem__factory,
   EnergyToken__factory,
   MeterOracle__factory
 } from "../typechain-types";
@@ -28,6 +29,9 @@ async function main() {
   const certificate = await new EnergyCertificate__factory(deployer).deploy();
   await certificate.waitForDeployment();
 
+  const reputationSystem = await new ReputationSystem__factory(deployer).deploy();
+  await reputationSystem.waitForDeployment();
+
   await (await token.connect(deployer).setMeterOracle(await oracle.getAddress())).wait();
 
   const deployment = {
@@ -39,7 +43,8 @@ async function main() {
       energyToken: await token.getAddress(),
       meterOracle: await oracle.getAddress(),
       energyMarket: await market.getAddress(),
-      energyCertificate: await certificate.getAddress()
+      energyCertificate: await certificate.getAddress(),
+      reputationSystem: await reputationSystem.getAddress()
     }
   };
 
@@ -53,6 +58,7 @@ async function main() {
   console.log(`MeterOracle: ${deployment.contracts.meterOracle}`);
   console.log(`EnergyMarket: ${deployment.contracts.energyMarket}`);
   console.log(`EnergyCertificate: ${deployment.contracts.energyCertificate}`);
+  console.log(`ReputationSystem: ${deployment.contracts.reputationSystem}`);
   console.log(`Saved deployment file: ${deploymentFile}`);
 }
 

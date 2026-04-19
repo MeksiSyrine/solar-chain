@@ -3,3 +3,4 @@
 /* eslint-disable */
 export type { EnergyMarket } from "./EnergyMarket";
 export type { IEnergyCertificate } from "./IEnergyCertificate";
+export type { IReputationSystem } from "./IReputationSystem";

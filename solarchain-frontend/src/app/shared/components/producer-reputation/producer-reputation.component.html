@@ -1,0 +1,16 @@
+<div class="space-y-2">
+  <div *ngIf="loading" class="animate-pulse space-y-2">
+    <div class="h-4 w-28 rounded bg-slate-700/70"></div>
+    <div class="h-3 w-40 rounded bg-slate-800/70"></div>
+  </div>
+
+  <div *ngIf="!loading && hasRatings" class="space-y-1">
+    <app-star-rating [rating]="averageAsNumber" [readonly]="true" size="sm"></app-star-rating>
+    <p class="text-xs text-text-secondary">
+      <span class="text-solar-300">{{ averageLabel }}</span>
+      <span class="ml-1">({{ reputation.ratingCount }} avis)</span>
+    </p>
+  </div>
+
+  <p *ngIf="!loading && !hasRatings" class="text-xs text-text-secondary">Nouveau producteur - pas encore note</p>
+</div>

@@ -1,7 +1,7 @@
 import { ethers, network } from "hardhat";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { EnergyCertificate__factory, EnergyMarket__factory, EnergyToken__factory } from "../typechain-types";
+import { EnergyCertificate__factory, EnergyMarket__factory, EnergyToken__factory, ReputationSystem__factory } from "../typechain-types";
 
 type DeploymentFile = {
   contracts: {
@@ -9,6 +9,7 @@ type DeploymentFile = {
     meterOracle: string;
     energyMarket: string;
     energyCertificate: string;
+    reputationSystem?: string;
   };
 };
 
@@ -25,6 +26,8 @@ async function main() {
   const token = EnergyToken__factory.connect(deployment.contracts.energyToken, admin);
   const market = EnergyMarket__factory.connect(deployment.contracts.energyMarket, admin);
   const certificate = EnergyCertificate__factory.connect(deployment.contracts.energyCertificate, admin);
+  const reputationAddress = deployment.contracts.reputationSystem || ethers.ZeroAddress;
+  const reputation = ReputationSystem__factory.connect(reputationAddress, admin);
   const oracleAddress = deployment.contracts.meterOracle;
   const marketAddress = deployment.contracts.energyMarket;
   const certificateAddress = deployment.contracts.energyCertificate;
@@ -54,6 +57,28 @@ async function main() {
     console.log("Market certificate contract configured.");
   } else {
     console.log("Market certificate contract already configured.");
+  }
+
+  if (reputationAddress !== ethers.ZeroAddress) {
+    const currentAuthorizedMarket = await reputation.authorizedMarket();
+    if (currentAuthorizedMarket.toLowerCase() !== marketAddress.toLowerCase()) {
+      console.log(`Updating reputation authorized market: ${currentAuthorizedMarket} -> ${marketAddress}`);
+      await (await reputation.connect(admin).setAuthorizedMarket(marketAddress)).wait();
+      console.log("Reputation authorized market configured.");
+    } else {
+      console.log("Reputation authorized market already configured.");
+    }
+
+    const currentReputationSystem = await market.reputationSystem();
+    if (currentReputationSystem.toLowerCase() !== reputationAddress.toLowerCase()) {
+      console.log(`Updating market reputation system: ${currentReputationSystem} -> ${reputationAddress}`);
+      await (await market.connect(admin).setReputationSystem(reputationAddress)).wait();
+      console.log("Market reputation system configured.");
+    } else {
+      console.log("Market reputation system already configured.");
+    }
+  } else {
+    console.log("No reputationSystem in deployment file, skipping reputation configuration.");
   }
 }
 

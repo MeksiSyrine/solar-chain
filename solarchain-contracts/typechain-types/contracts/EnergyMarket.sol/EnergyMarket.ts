@@ -104,7 +104,9 @@ export interface EnergyMarketInterface extends Interface {
       | "getTradesByAddress"
       | "owner"
       | "renounceOwnership"
+      | "reputationSystem"
       | "setCertificateContract"
+      | "setReputationSystem"
       | "transferOwnership"
   ): FunctionFragment;
 
@@ -171,7 +173,15 @@ export interface EnergyMarketInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "reputationSystem",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "setCertificateContract",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setReputationSystem",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -227,7 +237,15 @@ export interface EnergyMarketInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "reputationSystem",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setCertificateContract",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setReputationSystem",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -449,8 +467,16 @@ export interface EnergyMarket extends BaseContract {
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
+  reputationSystem: TypedContractMethod<[], [string], "view">;
+
   setCertificateContract: TypedContractMethod<
     [certificateAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  setReputationSystem: TypedContractMethod<
+    [reputationAddress: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -524,9 +550,19 @@ export interface EnergyMarket extends BaseContract {
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "reputationSystem"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "setCertificateContract"
   ): TypedContractMethod<
     [certificateAddress: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "setReputationSystem"
+  ): TypedContractMethod<
+    [reputationAddress: AddressLike],
     [void],
     "nonpayable"
   >;
