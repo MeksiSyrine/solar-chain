@@ -16,7 +16,7 @@ describe("EnergyToken", function () {
 
     expect(await token.name()).to.equal("SolarToken");
     expect(await token.symbol()).to.equal("SKWH");
-    expect(await token.decimals()).to.equal(0);
+    expect(await token.decimals()).to.equal(0n);
   });
 
   it("should let owner set meter oracle", async function () {
@@ -49,7 +49,7 @@ describe("EnergyToken", function () {
     );
 
     await token.connect(oracleSigner).mint(producer.address, 10);
-    expect(await token.balanceOf(producer.address)).to.equal(10);
+    expect(await token.balanceOf(producer.address)).to.equal(10n);
   });
 
   it("should support transfer and burn after mint", async function () {
@@ -59,9 +59,9 @@ describe("EnergyToken", function () {
     await token.connect(oracleSigner).mint(producer.address, 25);
 
     await token.connect(producer).transfer(other.address, 5);
-    expect(await token.balanceOf(other.address)).to.equal(5);
+    expect(await token.balanceOf(other.address)).to.equal(5n);
 
     await token.connect(producer).burn(10);
-    expect(await token.balanceOf(producer.address)).to.equal(10);
+    expect(await token.balanceOf(producer.address)).to.equal(10n);
   });
 });

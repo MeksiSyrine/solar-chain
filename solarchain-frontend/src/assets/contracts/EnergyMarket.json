@@ -93,6 +93,25 @@
       "inputs": [
         {
           "indexed": true,
+          "internalType": "address",
+          "name": "previousCertificateContract",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newCertificateContract",
+          "type": "address"
+        }
+      ],
+      "name": "CertificateContractUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
           "internalType": "uint256",
           "name": "offerId",
           "type": "uint256"
@@ -235,6 +254,19 @@
       "name": "cancelOffer",
       "outputs": [],
       "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "certificateContract",
+      "outputs": [
+        {
+          "internalType": "contract IEnergyCertificate",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -597,6 +629,19 @@
     {
       "inputs": [],
       "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "certificateAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setCertificateContract",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

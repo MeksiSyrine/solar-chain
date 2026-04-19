@@ -158,6 +158,7 @@ npm --prefix "D:\TPs\ICE4\blockchain\solarchain\solarchain-contracts" run node
 
 - Scenario E2E minimal: `docs/e2e-minimal-scenario.md`
 - Checklist de recette finale: `docs/final-recipe-checklist.md`
+- Checkpoint projet (description, roles, permissions, lancement): `docs/project-checkpoint.md`
 
 
 Ordre de lancement correct (obligatoire)

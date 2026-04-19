@@ -18,11 +18,11 @@ describe("MeterOracle", function () {
 
     await expect(oracle.registerProducer(producer.address, 1000))
       .to.emit(oracle, "ProducerRegistered")
-      .withArgs(producer.address, 1000);
+      .withArgs(producer.address, 1000n);
 
     const details = await oracle.getProducer(producer.address);
     expect(details.isRegistered).to.equal(true);
-    expect(details.maxCapacityKwh).to.equal(1000);
+    expect(details.maxCapacityKwh).to.equal(1000n);
 
     const all = await oracle.getAllProducers();
     expect(all.length).to.equal(1);
@@ -45,12 +45,12 @@ describe("MeterOracle", function () {
 
     await expect(oracle.submitReading(producer.address, 350))
       .to.emit(oracle, "MeterReadingSubmitted")
-      .withArgs(producer.address, 350, 350, anyValue);
+      .withArgs(producer.address, 350n, 350n, anyValue);
 
     const details = await oracle.getProducer(producer.address);
-    expect(details.totalMintedKwh).to.equal(350);
-    expect(details.readingCount).to.equal(1);
-    expect(await token.balanceOf(producer.address)).to.equal(350);
+    expect(details.totalMintedKwh).to.equal(350n);
+    expect(details.readingCount).to.equal(1n);
+    expect(await token.balanceOf(producer.address)).to.equal(350n);
   });
 
   it("should reject invalid readings", async function () {

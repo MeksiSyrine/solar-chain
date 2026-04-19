@@ -31,6 +31,12 @@ export const routes: Routes = [
     loadComponent: () => import("./pages/history/history.page").then((m) => m.HistoryPage)
   },
   {
+    path: "certificates",
+    canActivate: [walletConnectedGuard],
+    loadComponent: () =>
+      import("./pages/certificates/certificates.component").then((m) => m.CertificatesComponent)
+  },
+  {
     path: "**",
     redirectTo: ""
   }

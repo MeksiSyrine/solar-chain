@@ -5,6 +5,19 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
+interface IEnergyCertificate {
+    struct CertificateData {
+        address buyer;
+        address producer;
+        uint256 kwhAmount;
+        uint256 priceWei;
+        uint256 tradeId;
+        uint256 issuedAt;
+    }
+
+    function mint(address to, CertificateData calldata data) external returns (uint256);
+}
+
 contract EnergyMarket is ReentrancyGuard, Ownable {
     struct Offer {
         uint256 id;
@@ -29,6 +42,7 @@ contract EnergyMarket is ReentrancyGuard, Ownable {
     }
 
     IERC20 public immutable energyToken;
+    IEnergyCertificate public certificateContract;
 
     uint256 private nextOfferId = 1;
     uint256 private nextTradeId = 1;
@@ -52,6 +66,7 @@ contract EnergyMarket is ReentrancyGuard, Ownable {
         uint256 totalPriceWei
     );
     event OfferCancelled(uint256 indexed offerId, address indexed producer, uint256 remainingKwh);
+    event CertificateContractUpdated(address indexed previousCertificateContract, address indexed newCertificateContract);
 
     error InvalidTokenAddress();
     error InvalidAmount();
@@ -69,6 +84,12 @@ contract EnergyMarket is ReentrancyGuard, Ownable {
             revert InvalidTokenAddress();
         }
         energyToken = IERC20(energyTokenAddress);
+    }
+
+    function setCertificateContract(address certificateAddress) external onlyOwner {
+        address previous = address(certificateContract);
+        certificateContract = IEnergyCertificate(certificateAddress);
+        emit CertificateContractUpdated(previous, certificateAddress);
     }
 
     function createOffer(uint256 quantityKwh, uint256 pricePerKwhWei) external {
@@ -150,6 +171,20 @@ contract EnergyMarket is ReentrancyGuard, Ownable {
                 timestamp: block.timestamp
             })
         );
+
+        if (address(certificateContract) != address(0)) {
+            certificateContract.mint(
+                msg.sender,
+                IEnergyCertificate.CertificateData({
+                    buyer: msg.sender,
+                    producer: offer.producer,
+                    kwhAmount: quantityKwh,
+                    priceWei: totalPriceWei,
+                    tradeId: tradeId,
+                    issuedAt: block.timestamp
+                })
+            );
+        }
 
         emit EnergySold(offerId, tradeId, msg.sender, offer.producer, quantityKwh, totalPriceWei);
     }

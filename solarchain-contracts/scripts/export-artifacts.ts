@@ -9,6 +9,7 @@ type DeploymentFile = {
     energyToken: string;
     meterOracle: string;
     energyMarket: string;
+    energyCertificate?: string;
   };
 };
 
@@ -30,7 +31,12 @@ async function writeEnvironmentFile(
     production: boolean;
     chainId: number;
     adminAddress: string;
-    contracts: { energyToken: string; energyMarket: string; meterOracle: string };
+    contracts: {
+      energyToken: string;
+      energyMarket: string;
+      meterOracle: string;
+      energyCertificate: string;
+    };
   }
 ) {
   const fileData = `export const environment = ${JSON.stringify(content, null, 2)};\n`;
@@ -60,6 +66,17 @@ async function main() {
       name: "MeterOracle",
       artifactPath: path.join(process.cwd(), "artifacts", "contracts", "MeterOracle.sol", "MeterOracle.json"),
       frontendFile: path.join(frontendContractsPath, "MeterOracle.json")
+    },
+    {
+      name: "EnergyCertificate",
+      artifactPath: path.join(
+        process.cwd(),
+        "artifacts",
+        "contracts",
+        "EnergyCertificate.sol",
+        "EnergyCertificate.json"
+      ),
+      frontendFile: path.join(frontendContractsPath, "EnergyCertificate.json")
     }
   ];
 
@@ -79,7 +96,8 @@ async function main() {
     contracts: {
       energyToken: deployment.contracts.energyToken,
       energyMarket: deployment.contracts.energyMarket,
-      meterOracle: deployment.contracts.meterOracle
+      meterOracle: deployment.contracts.meterOracle,
+      energyCertificate: deployment.contracts.energyCertificate || ""
     }
   });
 
@@ -90,7 +108,8 @@ async function main() {
     contracts: {
       energyToken: deployment.contracts.energyToken,
       energyMarket: deployment.contracts.energyMarket,
-      meterOracle: deployment.contracts.meterOracle
+      meterOracle: deployment.contracts.meterOracle,
+      energyCertificate: deployment.contracts.energyCertificate || ""
     }
   });
 

@@ -1,43 +1,85 @@
-<nav class="sticky top-0 z-30 border-b border-emerald-900/40 bg-slate-950/70 backdrop-blur">
-  <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-    <div class="flex items-center gap-4">
-      <a routerLink="/" class="text-xl font-semibold tracking-wide text-emerald-400">SolarChain</a>
-      <div class="hidden items-center gap-2 md:flex">
-        <a routerLink="/admin" routerLinkActive="text-emerald-300" class="text-sm text-slate-300">Admin</a>
-        <a routerLink="/producer" routerLinkActive="text-emerald-300" class="text-sm text-slate-300">Producteur</a>
-        <a routerLink="/consumer" routerLinkActive="text-emerald-300" class="text-sm text-slate-300">Consommateur</a>
-        <a routerLink="/history" routerLinkActive="text-emerald-300" class="text-sm text-slate-300">Historique</a>
+<nav class="sticky top-0 z-30 border-b border-solar/30 bg-bg-base/80 backdrop-blur-xl">
+  <div class="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+    <div class="flex min-w-0 items-center gap-3 md:gap-5">
+      <a routerLink="/" class="group inline-flex items-center gap-2">
+        <span class="spin-slow inline-flex h-8 w-8 items-center justify-center rounded-full border border-solar/40 bg-solar-glow text-base">
+          ☀️
+        </span>
+        <span class="bg-gradient-to-r from-solar-400 to-solar-300 bg-clip-text text-lg font-bold tracking-wider text-transparent">
+          SolarChain
+        </span>
+      </a>
+
+      <div class="hidden items-center gap-1 md:flex">
+        <a
+          routerLink="/admin"
+          routerLinkActive="rounded-full border border-solar bg-solar-glow px-4 py-1.5 text-solar-400"
+          class="rounded-full px-4 py-1.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
+        >
+          Admin
+        </a>
+        <a
+          routerLink="/producer"
+          routerLinkActive="rounded-full border border-solar bg-solar-glow px-4 py-1.5 text-solar-400"
+          class="rounded-full px-4 py-1.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
+        >
+          Producteur
+        </a>
+        <a
+          routerLink="/consumer"
+          routerLinkActive="rounded-full border border-solar bg-solar-glow px-4 py-1.5 text-solar-400"
+          class="rounded-full px-4 py-1.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
+        >
+          Consommateur
+        </a>
+        <a
+          routerLink="/history"
+          routerLinkActive="rounded-full border border-solar bg-solar-glow px-4 py-1.5 text-solar-400"
+          class="rounded-full px-4 py-1.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
+        >
+          Historique
+        </a>
+        <a
+          *ngIf="isConnected$ | async"
+          routerLink="/certificates"
+          routerLinkActive="rounded-full border border-solar bg-solar-glow px-4 py-1.5 text-solar-400"
+          class="rounded-full px-4 py-1.5 text-sm text-text-secondary transition-colors hover:text-text-primary"
+        >
+          Certificats
+        </a>
       </div>
     </div>
 
-    <div class="flex items-center gap-3">
-      <span
-        class="rounded px-2 py-1 text-xs"
-        [class.bg-emerald-600/30]="isCorrectNetwork$ | async"
-        [class.text-emerald-200]="isCorrectNetwork$ | async"
-        [class.bg-amber-600/25]="(isCorrectNetwork$ | async) === false"
-        [class.text-amber-200]="(isCorrectNetwork$ | async) === false"
-      >
-        {{ (isCorrectNetwork$ | async) ? 'Reseau OK' : 'Mauvais reseau' }}
+    <div class="flex items-center gap-2 sm:gap-3">
+      <span *ngIf="isCorrectNetwork$ | async" class="network-pill ok">
+        <span class="pulse-green-dot inline-block h-2 w-2 rounded-full bg-green-400"></span>
+        Réseau OK
+      </span>
+
+      <span *ngIf="(isCorrectNetwork$ | async) === false" class="network-pill bad">
+        <span aria-hidden="true">⚠️</span>
+        Mauvais réseau
       </span>
 
       <button
         *ngIf="(isCorrectNetwork$ | async) === false"
-        mat-stroked-button
-        color="accent"
+        class="btn-secondary px-3 py-2 text-xs sm:text-sm"
         (click)="switchNetwork()"
       >
-        Changer reseau
+        Changer réseau
       </button>
 
       <app-wallet-badge *ngIf="isConnected$ | async"></app-wallet-badge>
 
-      <button *ngIf="isConnected$ | async" mat-stroked-button color="warn" (click)="disconnect()">
+      <button *ngIf="isConnected$ | async" class="btn-danger px-3 py-2 text-xs sm:text-sm" (click)="disconnect()">
         Déconnecter
       </button>
 
-      <button *ngIf="!(isConnected$ | async)" mat-flat-button color="primary" (click)="connect()">
-        Connecter MetaMask
+      <button *ngIf="!(isConnected$ | async)" class="btn-primary solar-glow-hover px-4 py-2 text-xs sm:text-sm" (click)="connect()">
+        <span class="inline-flex items-center gap-2">
+          <span aria-hidden="true">👛</span>
+          Connecter MetaMask
+        </span>
       </button>
     </div>
   </div>

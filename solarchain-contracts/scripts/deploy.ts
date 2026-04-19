@@ -1,7 +1,12 @@
 import { ethers, network } from "hardhat";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { EnergyMarket__factory, EnergyToken__factory, MeterOracle__factory } from "../typechain-types";
+import {
+  EnergyCertificate__factory,
+  EnergyMarket__factory,
+  EnergyToken__factory,
+  MeterOracle__factory
+} from "../typechain-types";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -20,6 +25,9 @@ async function main() {
   const market = await new EnergyMarket__factory(deployer).deploy(await token.getAddress());
   await market.waitForDeployment();
 
+  const certificate = await new EnergyCertificate__factory(deployer).deploy();
+  await certificate.waitForDeployment();
+
   await (await token.connect(deployer).setMeterOracle(await oracle.getAddress())).wait();
 
   const deployment = {
@@ -30,7 +38,8 @@ async function main() {
     contracts: {
       energyToken: await token.getAddress(),
       meterOracle: await oracle.getAddress(),
-      energyMarket: await market.getAddress()
+      energyMarket: await market.getAddress(),
+      energyCertificate: await certificate.getAddress()
     }
   };
 
@@ -43,6 +52,7 @@ async function main() {
   console.log(`EnergyToken: ${deployment.contracts.energyToken}`);
   console.log(`MeterOracle: ${deployment.contracts.meterOracle}`);
   console.log(`EnergyMarket: ${deployment.contracts.energyMarket}`);
+  console.log(`EnergyCertificate: ${deployment.contracts.energyCertificate}`);
   console.log(`Saved deployment file: ${deploymentFile}`);
 }
 

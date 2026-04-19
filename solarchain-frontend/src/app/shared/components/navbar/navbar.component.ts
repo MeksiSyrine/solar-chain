@@ -36,19 +36,29 @@ export class NavbarComponent {
     try {
       const account = await this.web3Service.connectWallet();
       this.snackBar.open(`Wallet connecte: ${account.slice(0, 6)}...${account.slice(-4)}`, "OK", {
-        duration: 2500
+        duration: 2500,
+        panelClass: ["solar-snackbar", "solar-snackbar--success"]
       });
     } catch (error) {
-      this.snackBar.open((error as Error).message, "Fermer", { duration: 3500 });
+      this.snackBar.open((error as Error).message, "Fermer", {
+        duration: 3500,
+        panelClass: ["solar-snackbar", "solar-snackbar--error"]
+      });
     }
   }
 
   async switchNetwork() {
     try {
       await this.web3Service.switchToExpectedNetwork();
-      this.snackBar.open("Reseau bascule avec succes", "OK", { duration: 2200 });
+      this.snackBar.open("Reseau bascule avec succes", "OK", {
+        duration: 2200,
+        panelClass: ["solar-snackbar", "solar-snackbar--success"]
+      });
     } catch (error) {
-      this.snackBar.open((error as Error).message, "Fermer", { duration: 3500 });
+      this.snackBar.open((error as Error).message, "Fermer", {
+        duration: 3500,
+        panelClass: ["solar-snackbar", "solar-snackbar--error"]
+      });
     }
   }
 
@@ -59,6 +69,9 @@ export class NavbarComponent {
     this.web3Service.chainId$.next(0);
     this.web3Service.isCorrectNetwork$.next(false);
     this.web3Service.signer = null;
-    this.snackBar.open("Déconnecté", "OK", { duration: 2000 });
+    this.snackBar.open("Déconnecté", "OK", {
+      duration: 2000,
+      panelClass: ["solar-snackbar", "solar-snackbar--info"]
+    });
   }
 }

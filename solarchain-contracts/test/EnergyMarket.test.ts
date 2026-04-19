@@ -20,14 +20,14 @@ describe("EnergyMarket", function () {
 
     await expect(market.connect(producer).createOffer(200, ethers.parseEther("0.001")))
       .to.emit(market, "OfferCreated")
-      .withArgs(1, producer.address, 200, ethers.parseEther("0.001"));
+      .withArgs(1n, producer.address, 200n, ethers.parseEther("0.001"));
 
     const offer = await market.getOffer(1);
     expect(offer.producer).to.equal(producer.address);
-    expect(offer.remainingKwh).to.equal(200);
+    expect(offer.remainingKwh).to.equal(200n);
 
-    expect(await token.balanceOf(producer.address)).to.equal(300);
-    expect(await token.balanceOf(await market.getAddress())).to.equal(200);
+    expect(await token.balanceOf(producer.address)).to.equal(300n);
+    expect(await token.balanceOf(await market.getAddress())).to.equal(200n);
   });
 
   it("should reject invalid offer inputs", async function () {
@@ -55,18 +55,18 @@ describe("EnergyMarket", function () {
       .withArgs(1, 1, consumer.address, producer.address, buyQty, totalPrice);
 
     const offer = await market.getOffer(1);
-    expect(offer.remainingKwh).to.equal(60);
+    expect(offer.remainingKwh).to.equal(60n);
     expect(offer.isActive).to.equal(true);
 
-    expect(await token.balanceOf(consumer.address)).to.equal(40);
+    expect(await token.balanceOf(consumer.address)).to.equal(40n);
 
     const producerBalanceAfter = await ethers.provider.getBalance(producer.address);
     expect(producerBalanceAfter - producerBalanceBefore).to.equal(totalPrice);
 
     const history = await market.getTradeHistory();
     expect(history.length).to.equal(1);
-    expect(history[0].offerId).to.equal(1);
-    expect(history[0].quantityKwh).to.equal(40);
+    expect(history[0].offerId).to.equal(1n);
+    expect(history[0].quantityKwh).to.equal(40n);
   });
 
   it("should revert buy when ETH amount is wrong", async function () {
@@ -94,10 +94,10 @@ describe("EnergyMarket", function () {
 
     await expect(market.connect(producer).cancelOffer(1))
       .to.emit(market, "OfferCancelled")
-      .withArgs(1, producer.address, 80);
+      .withArgs(1n, producer.address, 80n);
 
     const producerTokenAfter = await token.balanceOf(producer.address);
-    expect(producerTokenAfter - producerTokenBefore).to.equal(80);
+    expect(producerTokenAfter - producerTokenBefore).to.equal(80n);
 
     const offer = await market.getOffer(1);
     expect(offer.isActive).to.equal(false);
@@ -129,7 +129,7 @@ describe("EnergyMarket", function () {
 
     const active = await market.getActiveOffers();
     expect(active.length).to.equal(1);
-    expect(active[0].id).to.equal(2);
+    expect(active[0].id).to.equal(2n);
 
     const consumerTrades = await market.getTradesByAddress(consumer.address);
     expect(consumerTrades.length).to.equal(1);
