@@ -4,6 +4,13 @@ Monorepo du projet SolarChain:
 - `solarchain-contracts`: smart contracts Solidity (Hardhat)
 - `solarchain-frontend`: application Angular 20 standalone
 
+Contrats principaux deployes en local:
+- EnergyToken (SKWH)
+- MeterOracle
+- EnergyMarket
+- EnergyCertificate (certificats NFT non transferables)
+- ReputationSystem (notation on-chain des producteurs)
+
 ## Setup rapide
 
 ### Contracts
@@ -146,6 +153,44 @@ cd solarchain-frontend
 npm run build
 ```
 
+## Phase 7 - Reputation on-chain des producteurs
+
+Ajouts realises:
+- Nouveau contrat `ReputationSystem.sol`
+- Enregistrement automatique du trade apres `buyEnergy` via `EnergyMarket`
+- Notation 1 a 5 etoiles par le consommateur, une seule fois par trade
+- Verifications on-chain strictes:
+	- seul le vrai acheteur du trade peut noter
+	- notation impossible si trade non enregistre
+	- notation impossible en double pour un meme trade
+- Calcul de la moyenne on-chain (sur 100, ex 4.75 = 475)
+- Export ABI + adresse du contrat de reputation vers le frontend
+
+Frontend reputation:
+- Service `reputation.service.ts`
+- Composant reutilisable `star-rating`
+- Composant `producer-reputation` (moyenne + nombre d'avis)
+- Integration dans la page Consommateur:
+	- reputation visible sur les offres
+	- panel de notation post-achat
+	- section Mes achats avec action Noter
+- Integration dans la page Historique:
+	- colonne Reputation dans le tableau
+	- bouton Noter si applicable
+	- carte Producteur le mieux note
+
+Commandes de validation reputation:
+
+```bash
+cd solarchain-contracts
+npm run compile
+npm test
+npm run bootstrap:local
+
+cd ../solarchain-frontend
+npm run build
+```
+
 ## Troubleshooting rapide
 
 Si `npm run node` echoue depuis la mauvaise racine, utiliser:
@@ -159,6 +204,13 @@ npm --prefix "D:\TPs\ICE4\blockchain\solarchain\solarchain-contracts" run node
 - Scenario E2E minimal: `docs/e2e-minimal-scenario.md`
 - Checklist de recette finale: `docs/final-recipe-checklist.md`
 - Checkpoint projet (description, roles, permissions, lancement): `docs/project-checkpoint.md`
+
+Scenario reputation recommande:
+1. Producteur publie une offre
+2. Consommateur achete une offre
+3. Consommateur soumet une note 1-5
+4. Verifier la mise a jour de la moyenne dans Consommateur et Historique
+5. Verifier qu'une seconde note sur le meme trade est refusee
 
 
 Ordre de lancement correct (obligatoire)

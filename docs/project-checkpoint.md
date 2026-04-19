@@ -2,7 +2,7 @@
 
 ## 1. Description du projet
 SolarChain est une dApp de marche local d'energie solaire.
-Le projet permet de tokeniser des kWh (SKWH), publier des offres de vente, acheter de l'energie et consulter l'historique des transactions.
+Le projet permet de tokeniser des kWh (SKWH), publier des offres de vente, acheter de l'energie, emettre un certificat d'achat et noter les producteurs on-chain.
 
 Architecture:
 - Backend blockchain: smart contracts Solidity (Hardhat)
@@ -14,6 +14,8 @@ Architecture:
 - Mint de tokens SKWH a partir des lectures compteurs
 - Creation d'offres de vente d'energie
 - Achat d'energie par les consommateurs
+- Emission de certificat NFT d'energie verte apres achat
+- Reputation on-chain des producteurs (1 a 5 etoiles)
 - Annulation d'offres actives par leur proprietaire
 - Historique global des trades
 - Gestion de la connexion wallet, du role et du reseau
@@ -42,6 +44,7 @@ Restrictions:
 Droits:
 - Acces a la page Consommateur
 - Acheter de l'energie depuis les offres actives
+- Noter un producteur apres achat (1 fois par trade)
 - Acces a Historique
 
 Restrictions:
@@ -55,6 +58,13 @@ Restrictions:
   - Admin: egal a adminAddress
   - Producteur: verifie on-chain via MeterOracle.isProducerRegistered
   - Consommateur: autorise pour wallet connecte
+
+Regles reputation on-chain:
+- Un trade doit etre enregistre par EnergyMarket avant notation
+- Seul le consumer du trade peut soumettre la note
+- Une seule note par trade
+- Score autorise: 1 a 5
+- Moyenne producteur calculee on-chain
 
 ## 5. Etapes de lancement (ordre obligatoire)
 ### Terminal A - Lancer le node Hardhat
@@ -89,7 +99,8 @@ npm run build
 2. Admin soumet une lecture
 3. Producteur cree une offre
 4. Consommateur achete une quantite
-5. Historique affiche le trade
+5. Consommateur note le producteur
+6. Historique affiche le trade et la reputation
 
 References:
 - docs/e2e-minimal-scenario.md
