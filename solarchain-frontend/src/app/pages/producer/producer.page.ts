@@ -6,6 +6,7 @@ import { formatEther, parseEther } from "ethers";
 import { Offer } from "../../core/models/offer.model";
 import { EnergyMarketService } from "../../core/services/energy-market.service";
 import { EnergyTokenService } from "../../core/services/energy-token.service";
+import { decodeContractError } from "../../core/services/contract-error-decoder";
 import { Web3Service } from "../../core/services/web3.service";
 
 @Component({
@@ -199,7 +200,7 @@ export class ProducerPage {
       this.offerForm.reset();
       await this.refreshView();
     } catch (error) {
-      this.snackBar.open((error as Error).message, "Fermer", {
+      this.snackBar.open(decodeContractError(error), "Fermer", {
         duration: 4000,
         panelClass: ["solar-snackbar", "solar-snackbar--error"]
       });
@@ -219,7 +220,7 @@ export class ProducerPage {
       });
       await this.refreshView();
     } catch (error) {
-      this.snackBar.open((error as Error).message, "Fermer", {
+      this.snackBar.open(decodeContractError(error), "Fermer", {
         duration: 4000,
         panelClass: ["solar-snackbar", "solar-snackbar--error"]
       });

@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
-import { pinataConfig } from "../../../environments/pinata.config";
-
+import { environment } from "../../../environments/environment";
+  
 export interface ProducerProfileData {
   name: string;
   location: string;
@@ -43,7 +43,7 @@ export class IpfsService {
       throw new Error(validation.error || "Image invalide.");
     }
 
-    if (!pinataConfig.jwt) {
+    if (!environment.jwt) {
       throw new Error("PINATA JWT manquant. Configurez NG_APP_PINATA_JWT.");
     }
 
@@ -53,7 +53,7 @@ export class IpfsService {
     const response = await fetch("https://api.pinata.cloud/pinning/pinFileToIPFS", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${pinataConfig.jwt}`
+        Authorization: `Bearer ${environment.jwt}`
       },
       body: formData
     });
@@ -72,7 +72,7 @@ export class IpfsService {
   }
 
   async uploadProfileJSON(profile: ProducerProfileData): Promise<string> {
-    if (!pinataConfig.jwt) {
+    if (!environment.jwt) {
       throw new Error("PINATA JWT manquant. Configurez NG_APP_PINATA_JWT.");
     }
 
@@ -87,7 +87,7 @@ export class IpfsService {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${pinataConfig.jwt}`
+        Authorization: `Bearer ${environment.jwt}`
       },
       body: JSON.stringify(body)
     });
@@ -116,7 +116,7 @@ export class IpfsService {
       return cached;
     }
 
-    const gateways = [pinataConfig.gateway, pinataConfig.fallbackGateway];
+    const gateways = [environment.gateway, environment.fallbackGateway];
 
     for (const gateway of gateways) {
       try {
@@ -146,7 +146,7 @@ export class IpfsService {
       return "";
     }
 
-    return `${pinataConfig.gateway}${normalizedCid}`;
+    return `${environment.gateway}${normalizedCid}`;
   }
 
   private async safeReadError(response: Response): Promise<string> {

@@ -29,6 +29,7 @@
     "@angular-devkit/build-angular": "^20.0.0",
     "@angular/cli": "^20.0.0",
     "@angular/compiler-cli": "^20.0.0",
+    "@ngx-env/builder": "^20.1.1",
     "@types/node": "^22.10.2",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",

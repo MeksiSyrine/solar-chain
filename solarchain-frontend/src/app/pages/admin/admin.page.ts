@@ -214,7 +214,16 @@ export class AdminPage {
     this.loading = true;
     this.errorMessage = "";
     try {
-      const address = this.registerForm.value.address || "";
+      const address = String(this.registerForm.value.address || "").trim();
+      const alreadyRegistered = await this.meterOracleService.isProducerRegistered(address);
+      if (alreadyRegistered) {
+        this.snackBar.open("Ce producteur existe deja", "Fermer", {
+          duration: 3500,
+          panelClass: ["solar-snackbar", "solar-snackbar--error"]
+        });
+        return;
+      }
+
       const capacity = BigInt(this.registerForm.value.capacity || 0);
       await this.meterOracleService.registerProducer(address, capacity);
       this.snackBar.open("Producteur enregistre", "OK", {
@@ -241,7 +250,7 @@ export class AdminPage {
     this.loading = true;
     this.errorMessage = "";
     try {
-      const address = this.readingForm.value.address || "";
+      const address = String(this.readingForm.value.address || "").trim();
       const kwh = BigInt(this.readingForm.value.kwh || 0);
       await this.meterOracleService.submitReading(address, kwh);
       this.snackBar.open("Lecture enregistree et tokens mintes", "OK", {
