@@ -14,6 +14,13 @@ export const routes: Routes = [
     loadComponent: () => import("./pages/admin/admin.page").then((m) => m.AdminPage)
   },
   {
+    path: "producer/profile",
+    canActivate: [walletConnectedGuard, roleGuard],
+    data: { role: "producer" },
+    loadComponent: () =>
+      import("./pages/producer/profile/producer-profile.component").then((m) => m.ProducerProfileComponent)
+  },
+  {
     path: "producer",
     canActivate: [walletConnectedGuard, roleGuard],
     data: { role: "producer" },

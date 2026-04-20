@@ -3,10 +3,11 @@ export const environment = {
   "chainId": 31337,
   "adminAddress": "",
   "contracts": {
-    "energyToken": "0x1291Be112d480055DaFd8a610b7d1e203891C274",
-    "energyMarket": "0xb7278A61aa25c888815aFC32Ad3cC52fF24fE575",
-    "meterOracle": "0x5f3f1dBD7B74C6B46e8c44f98792A1dAf8d69154",
-    "energyCertificate": "0xCD8a1C3ba11CF5ECfa6267617243239504a98d90",
-    "reputationSystem": "0x82e01223d51Eb87e16A03E24687EDF0F294da6f1"
+    "energyToken": "0x922D6956C99E12DFeB3224DEA977D0939758A1Fe",
+    "energyMarket": "0x1fA02b2d6A771842690194Cf62D91bdd92BfE28d",
+    "meterOracle": "0x5081a39b8A5f0E35a8D959395a630b68B74Dd30f",
+    "energyCertificate": "0xdbC43Ba45381e02825b14322cDdd15eC4B3164E6",
+    "reputationSystem": "0x04C89607413713Ec9775E14b954286519d836FEf",
+    "producerProfile": "0x4C4a2f8c81640e47606d3fd77B353E87Ba015584"
   }
 };

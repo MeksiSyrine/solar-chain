@@ -1,82 +1,70 @@
-<section class="page-enter mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-  <header class="glass-card border border-emerald-500/20 p-6">
-    <div class="flex flex-wrap items-center justify-between gap-4">
+<section class="page-enter mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+  <header class="mb-2 border-b border-zinc-800 pb-6">
+    <p class="text-xs text-zinc-600">SolarChain / Certificats</p>
+    <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-bold text-emerald-300 sm:text-3xl">Mes Certificats d'Energie Verte</h1>
-        <p class="mt-2 text-sm text-slate-300">
-          Chaque achat valide un certificat soulbound non-transferable prouvant votre consommation solaire.
-        </p>
+        <h1 class="text-xl font-semibold text-zinc-100">Mes certificats energie</h1>
+        <p class="mt-0.5 text-sm text-zinc-500">Certificats soulbound emis apres chaque achat valide.</p>
       </div>
 
-      <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-center">
-        <p class="text-xs uppercase tracking-wider text-emerald-200">Total certificats</p>
-        <p class="text-3xl font-bold text-emerald-300">{{ certificates.length }}</p>
+      <div class="rounded border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-right">
+        <p class="text-xs text-zinc-500">Total certificats</p>
+        <p class="text-lg font-semibold font-mono text-zinc-100">{{ certificates.length }}</p>
       </div>
     </div>
   </header>
 
-  <div
-    *ngIf="errorMessage"
-    class="mt-4 rounded-xl border border-rose-500/30 bg-rose-900/30 px-4 py-3 text-sm text-rose-200"
-  >
+  <div *ngIf="errorMessage" class="rounded-md border border-red-900 bg-red-950 px-4 py-3 text-sm text-red-400">
     {{ errorMessage }}
   </div>
 
-  <div *ngIf="!account" class="mt-4 rounded-xl border border-amber-500/30 bg-amber-900/20 px-4 py-3 text-sm text-amber-200">
+  <div *ngIf="!account" class="rounded-md border border-amber-900 bg-amber-950 px-4 py-3 text-sm text-amber-400">
     Connectez votre wallet pour afficher vos certificats.
   </div>
 
-  <div *ngIf="account && !loading && certificates.length === 0 && !errorMessage" class="mt-6 glass-card p-8 text-center">
-    <div class="mx-auto mb-3 h-12 w-12 rounded-full border border-emerald-500/40 bg-emerald-500/10 text-2xl leading-[48px]">🌿</div>
-    <h2 class="text-lg font-semibold text-emerald-300">Aucun certificat pour le moment</h2>
-    <p class="mt-2 text-sm text-slate-300">Achetez de l'energie sur le marche pour recevoir votre premier certificat vert.</p>
+  <div *ngIf="account && !loading && certificates.length === 0 && !errorMessage" class="rounded-lg border border-zinc-800 bg-zinc-900 py-16 text-center">
+    <p class="text-sm font-medium text-zinc-500">Aucun certificat pour le moment</p>
+    <p class="mt-1 text-xs text-zinc-600">Achetez de l energie sur le marche pour recevoir un certificat.</p>
   </div>
 
-  <div *ngIf="loading" class="mt-6 rounded-xl border border-slate-700 bg-slate-900/50 p-4 text-sm text-slate-300">
-    Chargement des certificats...
+  <div *ngIf="loading" class="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-4">
+    <div class="skeleton h-10 w-full"></div>
   </div>
 
-  <div *ngIf="certificates.length > 0" class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-    <article
-      *ngFor="let cert of certificates; trackBy: trackByTokenId"
-      class="glass-card border border-emerald-500/20 p-5"
-    >
-      <div class="flex items-start justify-between gap-3">
-        <div>
-          <p class="text-xs uppercase tracking-wide text-slate-400">Certificat</p>
-          <p class="text-xl font-bold text-emerald-300">#{{ cert.tokenId.toString() }}</p>
-        </div>
-        <span class="rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2 py-1 text-xs text-emerald-200">
-          🌿 Energie Verte Certifiee
-        </span>
-      </div>
+  <section *ngIf="certificates.length > 0" class="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
+    <header class="border-b border-zinc-800 px-6 py-4">
+      <h2 class="text-sm font-medium text-zinc-200">Certificats</h2>
+    </header>
 
-      <dl class="mt-4 space-y-2 text-sm">
-        <div class="flex items-center justify-between gap-3">
-          <dt class="text-slate-400">Quantite</dt>
-          <dd class="font-semibold text-emerald-300">{{ cert.kwhAmount.toString() }} kWh</dd>
-        </div>
-        <div class="flex items-center justify-between gap-3">
-          <dt class="text-slate-400">Producteur</dt>
-          <dd class="font-medium text-slate-200">{{ shortAddress(cert.producer) }}</dd>
-        </div>
-        <div class="flex items-center justify-between gap-3">
-          <dt class="text-slate-400">Prix paye</dt>
-          <dd class="font-medium text-solar-300">{{ formatEth(cert.priceWei) }}</dd>
-        </div>
-        <div class="flex items-center justify-between gap-3">
-          <dt class="text-slate-400">Trade ID</dt>
-          <dd class="font-medium text-slate-200">#{{ cert.tradeId.toString() }}</dd>
-        </div>
-        <div class="flex items-center justify-between gap-3">
-          <dt class="text-slate-400">Date achat</dt>
-          <dd class="font-medium text-slate-200">{{ Number(cert.issuedAt) * 1000 | date : "short" }}</dd>
-        </div>
-      </dl>
-
-      <div class="mt-4 rounded-lg border border-slate-600/50 bg-slate-800/60 px-3 py-2 text-center text-xs text-slate-300">
-        Soulbound - Non transferable
-      </div>
-    </article>
-  </div>
+    <div class="overflow-x-auto px-6 py-4">
+      <table class="table-shell min-w-full">
+        <thead>
+          <tr>
+            <th>Token ID</th>
+            <th>kWh</th>
+            <th>Producteur</th>
+            <th>Prix paye</th>
+            <th>Trade ID</th>
+            <th>Date achat</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cert of certificates; trackBy: trackByTokenId">
+            <td class="font-mono text-xs text-zinc-400">#{{ cert.tokenId.toString() }}</td>
+            <td class="font-mono text-sm text-zinc-300">{{ cert.kwhAmount.toString() }}</td>
+            <td class="font-mono text-xs text-zinc-400">{{ cert.producer }}</td>
+            <td class="font-mono text-xs text-zinc-400">{{ formatEth(cert.priceWei) }}</td>
+            <td class="font-mono text-xs text-zinc-400">#{{ cert.tradeId.toString() }}</td>
+            <td class="text-sm text-zinc-300">{{ Number(cert.issuedAt) * 1000 | date : "dd MMM y, HH:mm" }}</td>
+            <td>
+              <span class="inline-flex items-center rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">
+                Soulbound
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
 </section>

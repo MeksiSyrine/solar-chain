@@ -56,5 +56,7 @@ export type { IEnergyToken } from "./contracts/MeterOracle.sol/IEnergyToken";
 export { IEnergyToken__factory } from "./factories/contracts/MeterOracle.sol/IEnergyToken__factory";
 export type { MeterOracle } from "./contracts/MeterOracle.sol/MeterOracle";
 export { MeterOracle__factory } from "./factories/contracts/MeterOracle.sol/MeterOracle__factory";
+export type { ProducerProfile } from "./contracts/ProducerProfile";
+export { ProducerProfile__factory } from "./factories/contracts/ProducerProfile__factory";
 export type { ReputationSystem } from "./contracts/ReputationSystem";
 export { ReputationSystem__factory } from "./factories/contracts/ReputationSystem__factory";

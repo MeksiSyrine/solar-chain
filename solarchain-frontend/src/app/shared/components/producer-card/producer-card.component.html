@@ -1,0 +1,65 @@
+<article class="rounded-lg border border-zinc-800 bg-zinc-900" [class.p-3]="compact" [class.p-5]="!compact">
+  <div *ngIf="loading" class="space-y-3" [class.py-1]="compact" [class.py-2]="!compact">
+    <div class="skeleton h-8 w-8 rounded-full"></div>
+    <div class="skeleton h-3 w-28"></div>
+    <div *ngIf="!compact" class="skeleton h-3 w-40"></div>
+  </div>
+
+  <div *ngIf="!loading" class="space-y-3">
+    <div class="flex items-center gap-3">
+      <img
+        *ngIf="hasProfile && imageUrl"
+        [src]="imageUrl"
+        (error)="onImageError()"
+        alt="Photo producteur"
+        class="h-10 w-10 rounded-full border border-zinc-700 object-cover"
+      />
+
+      <div
+        *ngIf="!hasProfile || !imageUrl"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-amber-500/40 bg-amber-500/10 text-xs font-semibold text-amber-300"
+      >
+        {{ fallbackInitials() }}
+      </div>
+
+      <div class="min-w-0 flex-1">
+        <p class="truncate text-sm font-semibold text-zinc-100" *ngIf="hasProfile && profile">{{ profile.name }}</p>
+        <p class="truncate text-xs font-mono text-zinc-400" *ngIf="!hasProfile">{{ shortAddress(producerAddress) }}</p>
+
+        <div class="mt-0.5 flex items-center gap-1.5 text-xs text-zinc-500" *ngIf="hasProfile && profile && !compact">
+          <mat-icon class="!h-3.5 !w-3.5 !text-[14px]">location_on</mat-icon>
+          <span class="truncate">{{ profile.location }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 text-xs">
+      <span class="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-zinc-300">
+        {{ averageLabel === 'Pas encore note' ? averageLabel : (averageLabel + ' / 5.00') }}
+      </span>
+      <span class="text-zinc-500" *ngIf="ratingCount > 0">({{ ratingCount }} avis)</span>
+    </div>
+
+    <div *ngIf="hasProfile && !compact" class="space-y-3">
+      <p class="text-sm leading-6 text-zinc-300">{{ profile?.description }}</p>
+
+      <div class="grid gap-2 sm:grid-cols-2">
+        <div class="rounded border border-zinc-800 bg-zinc-950 px-2.5 py-2 text-xs text-zinc-300">
+          <span class="text-zinc-500">Capacite:</span> {{ profile?.capacityKwp }} kWc
+        </div>
+        <div class="rounded border border-zinc-800 bg-zinc-950 px-2.5 py-2 text-xs text-zinc-300">
+          <span class="text-zinc-500">Installation:</span> {{ profile?.installYear }}
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 text-xs">
+        <span class="rounded border border-green-900 bg-green-950 px-2 py-0.5 text-green-400">Producteur verifie</span>
+        <span class="font-mono text-zinc-500">{{ shortAddress(producerAddress) }}</span>
+      </div>
+    </div>
+
+    <div *ngIf="!hasProfile" class="rounded border border-zinc-800 bg-zinc-950 px-2.5 py-2 text-xs text-zinc-500">
+      Profil non configure
+    </div>
+  </div>
+</article>

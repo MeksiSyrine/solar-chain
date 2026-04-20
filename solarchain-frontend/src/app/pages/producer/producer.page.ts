@@ -13,114 +13,128 @@ import { Web3Service } from "../../core/services/web3.service";
   standalone: true,
   imports: [DecimalPipe, ReactiveFormsModule, NgIf, NgFor, MatSnackBarModule],
   template: `
-    <section class="page-enter space-y-6">
-      <header class="glass-card border border-green/30 p-6">
-        <div class="flex flex-wrap items-start justify-between gap-4">
+    <section class="page-enter mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <header class="mb-2 border-b border-zinc-800 pb-6">
+        <p class="text-xs text-zinc-600">SolarChain / Producteur</p>
+        <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 class="bg-gradient-to-r from-green-400 to-solar-300 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl">
-              🔋 Dashboard Producteur
-            </h1>
-            <p class="mt-2 text-sm text-text-secondary">Publiez des offres, suivez vos ventes et optimisez vos revenus.</p>
+            <h1 class="text-xl font-semibold text-zinc-100">Dashboard Producteur</h1>
+            <p class="mt-0.5 text-sm text-zinc-500">Publier des offres et suivre la performance de vente.</p>
           </div>
 
-          <span class="rounded-xl border border-green/40 bg-green-glow px-3 py-2 text-sm text-green-400">Producteur vérifié ✓</span>
+          <span class="rounded border border-green-900 bg-green-950 px-2 py-0.5 text-xs text-green-400">Compte verifie</span>
         </div>
 
-        <div *ngIf="!web3Service.currentAccount" class="mt-4 rounded-xl border border-amber-500/40 bg-amber-900/30 p-3 text-sm text-amber-200">
-          Connecte ton wallet pour charger tes données producteur.
+        <div *ngIf="!web3Service.currentAccount" class="mt-4 rounded-md border border-amber-900 bg-amber-950 px-3 py-2 text-xs text-amber-400">
+          Connectez votre wallet pour charger vos donnees producteur.
         </div>
-        <div *ngIf="errorMessage" class="mt-4 rounded-xl border border-rose-500/40 bg-rose-900/30 p-3 text-sm text-rose-200">
+        <div *ngIf="errorMessage" class="mt-4 rounded-md border border-red-900 bg-red-950 px-3 py-2 text-xs text-red-400">
           {{ errorMessage }}
         </div>
       </header>
 
       <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <article class="glass-card border border-green/30 p-5">
-          <p class="text-sm text-text-secondary">SKWH disponibles</p>
-          <p class="mt-2 text-3xl font-bold text-text-primary">{{ skwhBalance }}</p>
-          <p class="mt-1 text-xs text-green-400">Token énergie producteur</p>
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+          <p class="text-xs font-medium uppercase tracking-wider text-zinc-500">SKWH disponibles</p>
+          <p class="mt-1 text-2xl font-semibold font-mono text-zinc-100">{{ skwhBalance }}</p>
+          <p class="mt-2 text-xs text-zinc-500">Solde producteur</p>
         </article>
 
-        <article class="glass-card border border-solar/25 p-5">
-          <p class="text-sm text-text-secondary">Offres actives</p>
-          <p class="mt-2 text-3xl font-bold text-text-primary">{{ myOffers.length }}</p>
-          <p class="mt-1 text-xs text-solar-300">En cours sur le marché</p>
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+          <p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Offres actives</p>
+          <p class="mt-1 text-2xl font-semibold font-mono text-zinc-100">{{ myOffers.length }}</p>
+          <p class="mt-2 text-xs text-zinc-500">Disponibles sur le marche</p>
         </article>
 
-        <article class="glass-card border border-solar/25 p-5 sm:col-span-2 xl:col-span-1">
-          <p class="text-sm text-text-secondary">Revenus totaux</p>
-          <p class="mt-2 text-3xl font-bold text-text-primary">{{ totalRevenueEth | number: '1.4-6' }} ETH</p>
-          <p class="mt-1 text-xs text-solar-300">Ventes cumulées</p>
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6 sm:col-span-2 xl:col-span-1">
+          <p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Revenus ETH</p>
+          <p class="mt-1 text-2xl font-semibold font-mono text-zinc-100">{{ totalRevenueEth | number: '1.4-6' }}</p>
+          <p class="mt-2 text-xs text-zinc-500">Total cumule</p>
         </article>
       </section>
 
-      <section class="glass-card border border-solar/20 p-6">
-        <h2 class="text-lg font-semibold text-text-primary">Créer une offre</h2>
-        <p class="mt-1 text-sm text-text-secondary">Définissez votre quantité et votre prix par kWh.</p>
+      <section class="rounded-lg border border-zinc-800 bg-zinc-900">
+        <header class="border-b border-zinc-800 px-6 py-4">
+          <h2 class="text-sm font-medium text-zinc-200">Nouvelle offre</h2>
+        </header>
 
-        <form [formGroup]="offerForm" class="mt-5 grid gap-4 md:grid-cols-2" (ngSubmit)="createOffer()">
-          <div class="md:col-span-2">
-            <label class="form-label">Quantité (kWh)</label>
-            <input class="input-field" type="number" formControlName="quantityKwh" placeholder="Ex: 250" />
+        <div class="px-6 py-4">
+          <form [formGroup]="offerForm" class="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end" (ngSubmit)="createOffer()">
+            <div>
+              <label class="form-label">Quantite (kWh)</label>
+              <input class="input-field font-mono" type="number" formControlName="quantityKwh" placeholder="250" />
+            </div>
+
+            <div>
+              <label class="form-label">Prix ETH / kWh</label>
+              <input class="input-field font-mono" type="number" step="0.0001" formControlName="priceEth" placeholder="0.0015" />
+            </div>
+
+            <div>
+              <button class="btn-primary px-4 py-2" [disabled]="offerForm.invalid || loading">Publier</button>
+            </div>
+          </form>
+
+          <div class="mt-4">
             <input
-              class="mt-3 w-full accent-[#f59e0b]"
+              class="w-full accent-amber-500"
               type="range"
               min="1"
               [max]="maxSliderKwh"
               [value]="sliderQuantity"
               (input)="onQuantitySlider($event)"
             />
+            <p class="mt-2 text-xs text-zinc-500">Total estime: {{ estimatedTotalEth | number: '1.4-6' }} ETH</p>
           </div>
-
-          <div>
-            <label class="form-label">Prix ETH / kWh</label>
-            <input class="input-field" type="number" step="0.0001" formControlName="priceEth" placeholder="Ex: 0.0015" />
-          </div>
-
-          <div class="rounded-xl border border-solar/35 bg-solar-glow px-3 py-2 text-sm text-solar-300">
-            Preview: {{ estimatedTotalEth | number: '1.4-6' }} ETH total si vendu
-          </div>
-
-          <div class="md:col-span-2">
-            <button class="btn-primary px-6 py-3" [disabled]="offerForm.invalid || loading">Publier l'offre</button>
-          </div>
-        </form>
+        </div>
       </section>
 
-      <section class="glass-card border border-border-subtle p-6">
-        <h2 class="text-lg font-semibold text-text-primary">Mes offres actives</h2>
+      <section class="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
+        <header class="border-b border-zinc-800 px-6 py-4">
+          <h2 class="text-sm font-medium text-zinc-200">Mes offres actives</h2>
+        </header>
 
-        <div *ngIf="!loading && myOffers.length === 0" class="mt-4 rounded-xl border border-border-subtle bg-bg-elevated p-5 text-sm text-text-secondary">
-          Aucune offre active. Crée ta première offre pour vendre ton surplus.
-        </div>
+        <div class="px-6 py-4">
+          <div *ngIf="!loading && myOffers.length === 0" class="py-12 text-center">
+            <p class="text-sm font-medium text-zinc-500">Aucune offre active</p>
+            <p class="mt-1 text-xs text-zinc-600">Publiez votre premiere offre pour demarrer les ventes.</p>
+          </div>
 
-        <div *ngIf="myOffers.length > 0" class="mt-4 grid gap-4 md:grid-cols-2">
-          <article *ngFor="let offer of myOffers" class="glass-card border border-solar/20 p-5">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <p class="text-xs uppercase tracking-wide text-text-secondary">Offre #{{ offer.id }}</p>
-                <p class="mt-1 text-lg font-semibold text-text-primary">{{ offer.remainingKwh }} / {{ offer.quantityKwh }} kWh</p>
-              </div>
-              <span class="rounded-full border border-solar/35 bg-solar-glow px-2 py-1 text-xs text-solar-300">
-                {{ toEth(offer.pricePerKwhWei) | number: '1.4-6' }} ETH/kWh
-              </span>
-            </div>
-
-            <div class="mt-3">
-              <div class="mb-1 flex items-center justify-between text-xs text-text-secondary">
-                <span>Progression vente</span>
-                <span>{{ soldPercent(offer) }}%</span>
-              </div>
-              <div class="h-2 overflow-hidden rounded-full bg-bg-elevated">
-                <div class="h-full rounded-full bg-gradient-to-r from-solar-500 to-green-400" [style.width.%]="soldPercent(offer)"></div>
-              </div>
-            </div>
-
-            <div class="mt-4 flex items-center justify-between gap-3">
-              <p class="text-sm text-text-secondary">Potentiel restant: {{ remainingPotentialEth(offer) | number: '1.4-6' }} ETH</p>
-              <button class="btn-danger px-3 py-2 text-sm" (click)="cancelOffer(offer.id)">Annuler</button>
-            </div>
-          </article>
+          <div *ngIf="myOffers.length > 0" class="overflow-x-auto">
+            <table class="table-shell min-w-full">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>kWh total</th>
+                  <th>kWh restants</th>
+                  <th>Prix / kWh</th>
+                  <th>Progression</th>
+                  <th>Potentiel ETH</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let offer of myOffers">
+                  <td class="font-mono text-xs text-zinc-400">#{{ offer.id }}</td>
+                  <td class="font-mono text-sm text-zinc-300">{{ offer.quantityKwh }}</td>
+                  <td class="font-mono text-sm text-zinc-300">{{ offer.remainingKwh }}</td>
+                  <td class="font-mono text-xs text-zinc-400">{{ toEth(offer.pricePerKwhWei) | number: '1.4-6' }}</td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="h-1.5 w-20 overflow-hidden rounded bg-zinc-800">
+                        <div class="h-full bg-amber-500" [style.width.%]="soldPercent(offer)"></div>
+                      </div>
+                      <span class="text-xs text-zinc-500">{{ soldPercent(offer) }}%</span>
+                    </div>
+                  </td>
+                  <td class="font-mono text-xs text-zinc-400">{{ remainingPotentialEth(offer) | number: '1.4-6' }}</td>
+                  <td>
+                    <button class="btn-danger px-3 py-1.5 text-xs" (click)="cancelOffer(offer.id)">Annuler</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     </section>

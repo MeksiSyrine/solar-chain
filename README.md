@@ -10,6 +10,7 @@ Contrats principaux deployes en local:
 - EnergyMarket
 - EnergyCertificate (certificats NFT non transferables)
 - ReputationSystem (notation on-chain des producteurs)
+- ProducerProfile (CID IPFS des profils producteurs)
 
 ## Setup rapide
 
@@ -211,6 +212,68 @@ Scenario reputation recommande:
 3. Consommateur soumet une note 1-5
 4. Verifier la mise a jour de la moyenne dans Consommateur et Historique
 5. Verifier qu'une seconde note sur le meme trade est refusee
+
+## Phase 8 - Profils Producteurs sur IPFS (Pinata)
+
+Ajouts realises:
+- Nouveau contrat `ProducerProfile.sol` (stockage on-chain du CID IPFS)
+- Tests dedies `ProducerProfile.test.ts`
+- Deploiement/exports mis a jour:
+	- `deploy.ts` deploie ProducerProfile
+	- `configure.ts` journalise l'adresse (pas de wiring requis)
+	- `export-artifacts.ts` exporte `ProducerProfile.json` + adresse frontend
+- Configuration Pinata frontend:
+	- `src/environments/pinata.config.ts`
+	- variables `NG_APP_PINATA_*` via `.env` frontend
+- Services frontend:
+	- `ipfs.service.ts` (upload image/JSON, fetch gateway + fallback, cache)
+	- `producer-profile.service.ts` (bridge contrat + IPFS)
+- Nouvelle page producteur:
+	- route protegee `/producer/profile`
+	- creation/edition/suppression profil
+	- upload image drag & drop
+	- etapes visibles: upload image, upload profil, transaction
+- Composant reutilisable:
+	- `app-producer-card` (mode compact/full, fallback avatar, reputation)
+- Integrations UI:
+	- Consumer: card producteur + modal "Voir le profil complet"
+	- Admin: card producteur + colonne "Profil IPFS" (badge + lien CID)
+	- Navbar: lien "Mon Profil" visible pour les producteurs
+
+### Variables d'environnement Pinata (frontend)
+
+Dans `solarchain-frontend/.env`:
+
+```bash
+NG_APP_PINATA_API_KEY=
+NG_APP_PINATA_API_SECRET=
+NG_APP_PINATA_JWT=
+```
+
+Important:
+- utiliser le JWT Pinata pour l'authentification API
+- ne pas commiter de token reel dans un fichier versionne
+
+### Commandes de validation Phase 8
+
+```bash
+cd solarchain-contracts
+npm run compile
+npm test
+npm run bootstrap:local
+
+cd ../solarchain-frontend
+npm run build
+```
+
+### Scenario rapide profils IPFS
+
+1. Connecter un wallet producteur enregistre
+2. Ouvrir `/producer/profile`
+3. Creer le profil (photo + infos)
+4. Sauvegarder et confirmer la transaction
+5. Verifier l'affichage du profil dans Consumer et Admin
+6. Verifier le lien CID depuis le dashboard Admin
 
 
 Ordre de lancement correct (obligatoire)

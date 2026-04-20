@@ -1,0 +1,153 @@
+<section class="page-enter mx-auto w-full max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+  <header class="mb-2 border-b border-zinc-800 pb-6">
+    <p class="text-xs text-zinc-600">SolarChain / Producteur / Profil IPFS</p>
+    <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h1 class="text-xl font-semibold text-zinc-100">Profil producteur</h1>
+        <p class="mt-0.5 text-sm text-zinc-500">Profil public heberge sur IPFS via Pinata.</p>
+      </div>
+      <span class="rounded border border-amber-900 bg-amber-950 px-2 py-0.5 text-xs text-amber-400">On-chain + IPFS</span>
+    </div>
+  </header>
+
+  <div *ngIf="errorMessage" class="rounded-md border border-red-900 bg-red-950 px-4 py-3 text-sm text-red-400">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="loading" class="rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-4">
+    <div class="skeleton h-10 w-full"></div>
+  </div>
+
+  <section *ngIf="!loading && !hasProfile && !showCreateForm" class="rounded-lg border border-zinc-800 bg-zinc-900 px-6 py-16 text-center">
+    <div class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full border border-amber-600/40 bg-amber-500/10 text-xl text-amber-400">
+      ☀
+    </div>
+    <h2 class="mt-4 text-lg font-semibold text-zinc-100">Creez votre profil producteur</h2>
+    <p class="mx-auto mt-2 max-w-lg text-sm text-zinc-500">
+      Votre profil sera visible par tous les acheteurs: photo, localisation, capacite et details de l installation.
+    </p>
+    <button class="btn-primary mt-6 px-4 py-2" (click)="startCreateFlow()">Creer mon profil</button>
+  </section>
+
+  <section *ngIf="!loading && (hasProfile || showCreateForm)" class="grid gap-6 xl:grid-cols-[1.15fr_1fr]">
+    <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+      <h2 class="text-sm font-medium text-zinc-200">Apercu profil actuel</h2>
+
+      <div *ngIf="hasProfile && currentProfile; else emptyPreview" class="mt-5 space-y-5">
+        <div class="flex items-center gap-4">
+          <img
+            *ngIf="displayImageUrl"
+            [src]="displayImageUrl"
+            alt="Photo producteur"
+            class="h-20 w-20 rounded-full border border-zinc-700 object-cover"
+          />
+          <div
+            *ngIf="!displayImageUrl"
+            class="inline-flex h-20 w-20 items-center justify-center rounded-full border border-zinc-700 bg-zinc-800 text-xs text-zinc-400"
+          >
+            PHOTO
+          </div>
+
+          <div>
+            <p class="text-base font-semibold text-zinc-100">{{ currentProfile.name }}</p>
+            <p class="text-sm text-zinc-500">{{ currentProfile.location }}</p>
+            <p class="mt-1 text-xs font-mono text-zinc-500">{{ shortAddress(currentProfile.producerAddress) }}</p>
+          </div>
+        </div>
+
+        <p class="text-sm leading-6 text-zinc-300">{{ currentProfile.description }}</p>
+
+        <div class="grid gap-3 sm:grid-cols-2">
+          <div class="rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2">
+            <p class="text-xs text-zinc-500">Capacite installee</p>
+            <p class="font-mono text-sm text-zinc-200">{{ currentProfile.capacityKwp }} kWc</p>
+          </div>
+          <div class="rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2">
+            <p class="text-xs text-zinc-500">Annee installation</p>
+            <p class="font-mono text-sm text-zinc-200">{{ currentProfile.installYear }}</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 pt-2">
+          <button class="btn-secondary px-3 py-2 text-xs" (click)="prepareEditProfile()">Modifier le profil</button>
+          <button class="btn-danger px-3 py-2 text-xs" [disabled]="removing" (click)="removeProfile()">
+            {{ removing ? "Suppression..." : "Supprimer le profil" }}
+          </button>
+        </div>
+      </div>
+
+      <ng-template #emptyPreview>
+        <div class="mt-5 rounded-md border border-zinc-800 bg-zinc-950 px-4 py-8 text-center">
+          <p class="text-sm text-zinc-500">Aucun profil encore enregistre on-chain.</p>
+        </div>
+      </ng-template>
+    </article>
+
+    <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+      <h2 class="text-sm font-medium text-zinc-200">Edition profil</h2>
+
+      <form class="mt-5 space-y-4" [formGroup]="profileForm" (ngSubmit)="saveProfile()">
+        <div>
+          <label class="form-label">Photo de profil</label>
+          <div
+            class="mt-2 rounded-md border border-dashed px-4 py-5 text-center transition"
+            [ngClass]="dragActive ? 'border-amber-500 bg-amber-500/5' : 'border-zinc-700 bg-zinc-950'"
+            (dragover)="onDragOver($event)"
+            (dragleave)="onDragLeave($event)"
+            (drop)="onDrop($event)"
+          >
+            <input #fileInput type="file" accept="image/png,image/jpeg,image/webp" class="hidden" (change)="onFileSelected($event)" />
+            <p class="text-sm text-zinc-300">Glissez une image ici ou</p>
+            <button type="button" class="btn-secondary mt-3 px-3 py-1.5 text-xs" (click)="fileInput.click()">Choisir un fichier</button>
+            <p class="mt-2 text-xs text-zinc-500">Formats acceptes: JPG, PNG, WEBP - max 5MB</p>
+          </div>
+
+          <div *ngIf="displayImageUrl" class="mt-3 flex items-center gap-3 rounded-md border border-zinc-800 bg-zinc-950 p-3">
+            <img [src]="displayImageUrl" alt="Preview" class="h-14 w-14 rounded-full object-cover" />
+            <div>
+              <p class="text-xs text-zinc-500">Apercu image</p>
+              <p class="text-xs text-zinc-300">{{ hasSelectedImage ? 'Nouvelle image selectionnee' : 'Image actuelle IPFS' }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label">Nom / Ferme solaire</label>
+          <input class="input-field" type="text" formControlName="name" placeholder="Ferme Solaire Atlas" />
+        </div>
+
+        <div>
+          <label class="form-label">Localisation</label>
+          <input class="input-field" type="text" formControlName="location" placeholder="Rabat, Sale" />
+        </div>
+
+        <div>
+          <div class="mb-1 flex items-center justify-between">
+            <label class="form-label mb-0">Description</label>
+            <span class="text-[11px] text-zinc-500">{{ descriptionLength }}/500</span>
+          </div>
+          <textarea class="input-field min-h-28" formControlName="description" maxlength="500" placeholder="Description de votre installation solaire..."></textarea>
+        </div>
+
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label class="form-label">Capacite (kWc)</label>
+            <input class="input-field font-mono" type="number" formControlName="capacityKwp" min="1" />
+          </div>
+          <div>
+            <label class="form-label">Annee d installation</label>
+            <input class="input-field font-mono" type="number" formControlName="installYear" min="1990" [max]="currentYear" />
+          </div>
+        </div>
+
+        <div *ngIf="saving && uploadStepMessage" class="rounded-md border border-amber-900 bg-amber-950 px-3 py-2 text-xs text-amber-400">
+          {{ uploadStepMessage }}
+        </div>
+
+        <button class="btn-primary w-full px-4 py-2" [disabled]="saving || profileForm.invalid">
+          {{ saving ? "Sauvegarde en cours..." : "Sauvegarder sur IPFS" }}
+        </button>
+      </form>
+    </article>
+  </section>
+</section>

@@ -114,6 +114,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MeterOracle__factory>;
     getContractFactory(
+      name: "ProducerProfile",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ProducerProfile__factory>;
+    getContractFactory(
       name: "ReputationSystem",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ReputationSystem__factory>;
@@ -244,6 +248,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.MeterOracle>;
     getContractAt(
+      name: "ProducerProfile",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ProducerProfile>;
+    getContractAt(
       name: "ReputationSystem",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -350,6 +359,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MeterOracle>;
     deployContract(
+      name: "ProducerProfile",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ProducerProfile>;
+    deployContract(
       name: "ReputationSystem",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ReputationSystem>;
@@ -479,6 +492,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MeterOracle>;
+    deployContract(
+      name: "ProducerProfile",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ProducerProfile>;
     deployContract(
       name: "ReputationSystem",
       args: any[],

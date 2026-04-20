@@ -1,0 +1,11 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="solarGradient" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F59E0B"/>
+      <stop offset="1" stop-color="#EAB308"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="52" height="52" rx="14" fill="#111827" stroke="#3F3F46" stroke-width="2"/>
+  <path d="M27.5 15L17.5 33H29L23.5 49L45.5 27H33L38.5 15H27.5Z" fill="url(#solarGradient)"/>
+  <circle cx="49" cy="16" r="3" fill="#FCD34D" opacity="0.9"/>
+</svg>

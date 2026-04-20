@@ -11,6 +11,7 @@ type DeploymentFile = {
     energyMarket: string;
     energyCertificate?: string;
     reputationSystem?: string;
+    producerProfile?: string;
   };
 };
 
@@ -38,6 +39,7 @@ async function writeEnvironmentFile(
       meterOracle: string;
       energyCertificate: string;
       reputationSystem: string;
+      producerProfile: string;
     };
   }
 ) {
@@ -90,6 +92,17 @@ async function main() {
         "ReputationSystem.json"
       ),
       frontendFile: path.join(frontendContractsPath, "ReputationSystem.json")
+    },
+    {
+      name: "ProducerProfile",
+      artifactPath: path.join(
+        process.cwd(),
+        "artifacts",
+        "contracts",
+        "ProducerProfile.sol",
+        "ProducerProfile.json"
+      ),
+      frontendFile: path.join(frontendContractsPath, "ProducerProfile.json")
     }
   ];
 
@@ -111,7 +124,8 @@ async function main() {
       energyMarket: deployment.contracts.energyMarket,
       meterOracle: deployment.contracts.meterOracle,
       energyCertificate: deployment.contracts.energyCertificate || "",
-      reputationSystem: deployment.contracts.reputationSystem || ""
+      reputationSystem: deployment.contracts.reputationSystem || "",
+      producerProfile: deployment.contracts.producerProfile || ""
     }
   });
 
@@ -124,7 +138,8 @@ async function main() {
       energyMarket: deployment.contracts.energyMarket,
       meterOracle: deployment.contracts.meterOracle,
       energyCertificate: deployment.contracts.energyCertificate || "",
-      reputationSystem: deployment.contracts.reputationSystem || ""
+      reputationSystem: deployment.contracts.reputationSystem || "",
+      producerProfile: deployment.contracts.producerProfile || ""
     }
   });
 

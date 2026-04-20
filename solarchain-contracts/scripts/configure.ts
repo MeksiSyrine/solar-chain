@@ -10,6 +10,7 @@ type DeploymentFile = {
     energyMarket: string;
     energyCertificate: string;
     reputationSystem?: string;
+    producerProfile?: string;
   };
 };
 
@@ -79,6 +80,13 @@ async function main() {
     }
   } else {
     console.log("No reputationSystem in deployment file, skipping reputation configuration.");
+  }
+
+  if (deployment.contracts.producerProfile) {
+    console.log(`ProducerProfile deployed at: ${deployment.contracts.producerProfile}`);
+    console.log("No additional ProducerProfile configuration required.");
+  } else {
+    console.log("No producerProfile in deployment file, skipping ProducerProfile log.");
   }
 }
 

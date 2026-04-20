@@ -1,20 +1,23 @@
 import { Component } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
 import { AsyncPipe, NgIf } from "@angular/common";
 import { RouterLink, RouterLinkActive } from "@angular/router";
 import { MatButtonModule } from "@angular/material/button";
-import { MatIconModule } from "@angular/material/icon";
 import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar";
 import { map } from "rxjs/operators";
+import { environment } from "../../../../environments/environment";
+import { MeterOracleService } from "../../../core/services/meter-oracle.service";
 import { Web3Service } from "../../../core/services/web3.service";
-import { WalletBadgeComponent } from "../wallet-badge/wallet-badge.component";
 
 @Component({
   selector: "app-navbar",
   standalone: true,
-  imports: [NgIf, AsyncPipe, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatSnackBarModule, WalletBadgeComponent],
+  imports: [NgIf, AsyncPipe, RouterLink, RouterLinkActive, MatButtonModule, MatSnackBarModule],
   templateUrl: "./navbar.component.html"
 })
 export class NavbarComponent {
+  readonly isProducer$ = new BehaviorSubject<boolean>(false);
+
   get account$() {
     return this.web3Service.account$;
   }
@@ -27,10 +30,30 @@ export class NavbarComponent {
     return this.web3Service.account$.pipe(map(account => !!account));
   }
 
+  formatBalance(balance: string): string {
+    const parsed = Number.parseFloat(balance || "0");
+    if (!Number.isFinite(parsed)) {
+      return "0";
+    }
+
+    return parsed.toFixed(4);
+  }
+
   constructor(
     public readonly web3Service: Web3Service,
+    private readonly meterOracleService: MeterOracleService,
     private readonly snackBar: MatSnackBar
-  ) {}
+  ) {
+    this.web3Service.account$.subscribe(() => {
+      this.refreshProducerRole().catch(() => undefined);
+    });
+
+    this.web3Service.chainId$.subscribe(() => {
+      this.refreshProducerRole().catch(() => undefined);
+    });
+
+    this.refreshProducerRole().catch(() => undefined);
+  }
 
   async connect() {
     try {
@@ -73,5 +96,25 @@ export class NavbarComponent {
       duration: 2000,
       panelClass: ["solar-snackbar", "solar-snackbar--info"]
     });
+  }
+
+  private async refreshProducerRole(): Promise<void> {
+    const account = this.web3Service.currentAccount;
+    if (!account || !this.web3Service.isCorrectNetwork$.value) {
+      this.isProducer$.next(false);
+      return;
+    }
+
+    if (environment.adminAddress && account.toLowerCase() === environment.adminAddress.toLowerCase()) {
+      this.isProducer$.next(false);
+      return;
+    }
+
+    try {
+      const isProducer = await this.meterOracleService.isProducerRegistered(account);
+      this.isProducer$.next(isProducer);
+    } catch {
+      this.isProducer$.next(false);
+    }
   }
 }

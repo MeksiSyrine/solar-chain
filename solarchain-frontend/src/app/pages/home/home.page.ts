@@ -11,106 +11,135 @@ import { Web3Service } from "../../core/services/web3.service";
   standalone: true,
   imports: [RouterLink, NgIf, MatSnackBarModule],
   template: `
-    <section class="page-enter relative space-y-8">
-      <div class="absolute inset-0 -z-10 overflow-hidden rounded-3xl">
-        <div class="absolute -top-28 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-solar-glow blur-3xl"></div>
-        <div class="absolute right-16 top-10 h-2 w-2 rounded-full bg-solar-400/70"></div>
-        <div class="absolute left-14 top-28 h-1.5 w-1.5 rounded-full bg-green-400/70"></div>
-        <div class="absolute bottom-16 right-1/3 h-1.5 w-1.5 rounded-full bg-solar-300/70"></div>
+    <section class="page-enter mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
+      <div class="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <header class="space-y-6 rounded-lg border border-zinc-800 bg-zinc-900 p-6 sm:p-8">
+          <div class="inline-flex items-center rounded-full border border-zinc-700 bg-zinc-800 px-3 py-1 text-xs text-zinc-400">
+            Plateforme decentralisee - Ethereum
+          </div>
+
+          <div>
+            <h1 class="text-4xl font-semibold tracking-tight text-zinc-100 leading-tight">Echangez votre energie solaire</h1>
+            <p class="mt-4 max-w-md text-base leading-relaxed text-zinc-400">
+              SolarChain connecte producteurs et consommateurs dans un marche P2P transparent et verifiable on-chain.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button class="btn-primary px-4 py-2" (click)="connectWallet()">Connecter le wallet</button>
+            <a routerLink="/consumer" class="btn-secondary px-4 py-2">Explorer le marche</a>
+          </div>
+
+          <div class="grid grid-cols-1 gap-4 border-t border-zinc-800 pt-4 sm:grid-cols-3 sm:divide-x sm:divide-zinc-800">
+            <div class="sm:pr-4">
+              <p class="text-xs text-zinc-500">kWh echanges</p>
+              <p class="mt-1 text-sm font-mono text-zinc-200">{{ totalKwhTraded }}</p>
+            </div>
+            <div class="sm:px-4">
+              <p class="text-xs text-zinc-500">Producteurs</p>
+              <p class="mt-1 text-sm font-mono text-zinc-200">{{ activeProducers }}</p>
+            </div>
+            <div class="sm:pl-4">
+              <p class="text-xs text-zinc-500">Transactions</p>
+              <p class="mt-1 text-sm font-mono text-zinc-200">{{ totalTransactions }}</p>
+            </div>
+          </div>
+        </header>
+
+        <section class="rounded-lg border border-zinc-800 bg-zinc-900">
+          <header class="border-b border-zinc-800 px-6 py-4">
+            <h2 class="text-sm font-medium text-zinc-200">Marche en direct</h2>
+          </header>
+
+          <div class="space-y-3 px-6 py-4">
+            <article class="rounded-md border border-zinc-800 bg-zinc-950 px-4 py-3">
+              <div class="flex items-center justify-between gap-3 text-xs">
+                <span class="font-mono text-zinc-400">0x12ab...98ef</span>
+                <span class="text-zinc-500">120 kWh</span>
+              </div>
+              <p class="mt-1 text-sm font-mono text-zinc-300">0.00120 ETH / kWh</p>
+            </article>
+
+            <article class="rounded-md border border-zinc-800 bg-zinc-950 px-4 py-3">
+              <div class="flex items-center justify-between gap-3 text-xs">
+                <span class="font-mono text-zinc-400">0x44cd...71aa</span>
+                <span class="text-zinc-500">85 kWh</span>
+              </div>
+              <p class="mt-1 text-sm font-mono text-zinc-300">0.00135 ETH / kWh</p>
+            </article>
+
+            <article class="rounded-md border border-zinc-800 bg-zinc-950 px-4 py-3">
+              <div class="flex items-center justify-between gap-3 text-xs">
+                <span class="font-mono text-zinc-400">0x8ff0...3b1c</span>
+                <span class="text-zinc-500">200 kWh</span>
+              </div>
+              <p class="mt-1 text-sm font-mono text-zinc-300">0.00110 ETH / kWh</p>
+            </article>
+          </div>
+        </section>
       </div>
 
-      <header class="glass-card relative overflow-hidden border border-solar/30 p-8 sm:p-10">
-        <div class="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-solar-glow blur-3xl"></div>
-        <div class="relative z-10">
-          <div class="mb-5 inline-flex items-center gap-2 rounded-full border border-solar/40 bg-solar-glow px-4 py-1.5 text-xs text-solar-300">
-            <span class="pulse-green-dot inline-block h-2 w-2 rounded-full bg-green-400"></span>
-            ⚡ Réseau Ethereum • Décentralisé • Transparent
-          </div>
-
-          <h1 class="max-w-4xl bg-gradient-to-r from-solar-300 to-green-400 bg-clip-text text-4xl font-black leading-tight text-transparent sm:text-6xl lg:text-7xl">
-            Échangez votre énergie solaire
-          </h1>
-
-          <p class="mt-5 max-w-2xl text-base text-text-secondary sm:text-xl">
-            SolarChain connecte producteurs et consommateurs dans un marché P2P propre, traçable et sans intermédiaire.
-          </p>
-
-          <div class="mt-7 flex flex-wrap items-center gap-3">
-            <button class="btn-primary solar-glow-hover px-6 py-3" (click)="connectWallet()">Connecter MetaMask</button>
-            <a routerLink="/consumer" class="btn-secondary px-6 py-3">Voir le marché</a>
-          </div>
-        </div>
-      </header>
-
       <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <article class="glass-card border border-solar/20 p-5">
-          <p class="text-sm text-text-secondary">Total kWh échangés</p>
-          <p class="mt-2 text-3xl font-bold text-text-primary">{{ totalKwhTraded }}</p>
-          <p class="mt-1 text-xs text-solar-300">Volume on-chain</p>
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+          <p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Total kWh echanges</p>
+          <p class="mt-1 text-2xl font-semibold font-mono text-zinc-100">{{ totalKwhTraded }}</p>
+          <p class="mt-2 text-xs text-zinc-500">Volume on-chain</p>
         </article>
 
-        <article class="glass-card border border-green/30 p-5">
-          <p class="text-sm text-text-secondary">Producteurs actifs</p>
-          <p class="mt-2 text-3xl font-bold text-text-primary">{{ activeProducers }}</p>
-          <p class="mt-1 text-xs text-green-400">Registres validés</p>
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+          <p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Producteurs actifs</p>
+          <p class="mt-1 text-2xl font-semibold font-mono text-zinc-100">{{ activeProducers }}</p>
+          <p class="mt-2 text-xs text-green-500">Registres valides</p>
         </article>
 
-        <article class="glass-card border border-solar/20 p-5 sm:col-span-2 lg:col-span-1">
-          <p class="text-sm text-text-secondary">Transactions totales</p>
-          <p class="mt-2 text-3xl font-bold text-text-primary">{{ totalTransactions }}</p>
-          <p class="mt-1 text-xs text-solar-300">Trades exécutés</p>
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6 sm:col-span-2 lg:col-span-1">
+          <p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Transactions totales</p>
+          <p class="mt-1 text-2xl font-semibold font-mono text-zinc-100">{{ totalTransactions }}</p>
+          <p class="mt-2 text-xs text-zinc-500">Trades executes</p>
         </article>
       </section>
 
-      <p *ngIf="loadingStats" class="text-sm text-text-secondary">Chargement des statistiques blockchain...</p>
+      <p *ngIf="loadingStats" class="text-sm text-zinc-500">Chargement des statistiques blockchain...</p>
 
       <section class="grid gap-4 md:grid-cols-2">
-        <a routerLink="/admin" class="glass-card group border border-border-subtle p-5">
+        <a routerLink="/admin" class="rounded-lg border border-zinc-800 bg-zinc-900 p-5 transition-colors duration-150 hover:border-zinc-700">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-3xl">🛡️</p>
-              <h3 class="mt-2 text-lg font-semibold text-text-primary">Dashboard Admin</h3>
-              <p class="mt-1 text-sm text-text-secondary">Enregistrer des producteurs et soumettre des lectures.</p>
+              <h3 class="text-base font-medium text-zinc-200">Dashboard Admin</h3>
+              <p class="mt-2 text-sm text-zinc-400">Enregistrer des producteurs et soumettre des lectures.</p>
             </div>
-            <span class="rounded-full border border-solar/40 bg-solar-glow px-2 py-1 text-xs text-solar-300">Admin</span>
+            <span class="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">Admin</span>
           </div>
-          <p class="mt-4 text-sm text-solar-300 transition group-hover:translate-x-1">Accéder →</p>
         </a>
 
-        <a routerLink="/producer" class="glass-card group border border-border-subtle p-5">
+        <a routerLink="/producer" class="rounded-lg border border-zinc-800 bg-zinc-900 p-5 transition-colors duration-150 hover:border-zinc-700">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-3xl">🔋</p>
-              <h3 class="mt-2 text-lg font-semibold text-text-primary">Dashboard Producteur</h3>
-              <p class="mt-1 text-sm text-text-secondary">Publier des offres et suivre vos revenus énergétiques.</p>
+              <h3 class="text-base font-medium text-zinc-200">Dashboard Producteur</h3>
+              <p class="mt-2 text-sm text-zinc-400">Publier des offres et suivre les revenus energetiques.</p>
             </div>
-            <span class="rounded-full border border-green/40 bg-green-glow px-2 py-1 text-xs text-green-400">Producteur</span>
+            <span class="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">Producteur</span>
           </div>
-          <p class="mt-4 text-sm text-solar-300 transition group-hover:translate-x-1">Accéder →</p>
         </a>
 
-        <a routerLink="/consumer" class="glass-card group border border-border-subtle p-5">
+        <a routerLink="/consumer" class="rounded-lg border border-zinc-800 bg-zinc-900 p-5 transition-colors duration-150 hover:border-zinc-700">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-3xl">🛒</p>
-              <h3 class="mt-2 text-lg font-semibold text-text-primary">Marché Consommateur</h3>
-              <p class="mt-1 text-sm text-text-secondary">Acheter l’énergie disponible et suivre vos certificats.</p>
+              <h3 class="text-base font-medium text-zinc-200">Marche Consommateur</h3>
+              <p class="mt-2 text-sm text-zinc-400">Acheter l energie disponible et suivre les certificats.</p>
             </div>
-            <span class="rounded-full border border-border-subtle bg-bg-elevated px-2 py-1 text-xs text-text-secondary">Tous</span>
+            <span class="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">Marche</span>
           </div>
-          <p class="mt-4 text-sm text-solar-300 transition group-hover:translate-x-1">Accéder →</p>
         </a>
 
-        <a routerLink="/history" class="glass-card group border border-border-subtle p-5">
+        <a routerLink="/history" class="rounded-lg border border-zinc-800 bg-zinc-900 p-5 transition-colors duration-150 hover:border-zinc-700">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <p class="text-3xl">📜</p>
-              <h3 class="mt-2 text-lg font-semibold text-text-primary">Historique Global</h3>
-              <p class="mt-1 text-sm text-text-secondary">Explorer les transactions blockchain du marché SolarChain.</p>
+              <h3 class="text-base font-medium text-zinc-200">Historique</h3>
+              <p class="mt-2 text-sm text-zinc-400">Explorer les transactions blockchain du marche SolarChain.</p>
             </div>
-            <span class="rounded-full border border-border-subtle bg-bg-elevated px-2 py-1 text-xs text-text-secondary">Tous</span>
+            <span class="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">Global</span>
           </div>
-          <p class="mt-4 text-sm text-solar-300 transition group-hover:translate-x-1">Accéder →</p>
         </a>
       </section>
     </section>

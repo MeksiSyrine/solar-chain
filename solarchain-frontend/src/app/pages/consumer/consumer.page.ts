@@ -11,7 +11,7 @@ import { EnergyCertificateService } from "../../core/services/energy-certificate
 import { EnergyMarketService } from "../../core/services/energy-market.service";
 import { ReputationService } from "../../core/services/reputation.service";
 import { Web3Service } from "../../core/services/web3.service";
-import { ProducerReputationComponent } from "../../shared/components/producer-reputation/producer-reputation.component";
+import { ProducerCardComponent } from "../../shared/components/producer-card/producer-card.component";
 import { StarRatingComponent } from "../../shared/components/star-rating/star-rating.component";
 
 @Component({
@@ -24,178 +24,193 @@ import { StarRatingComponent } from "../../shared/components/star-rating/star-ra
     ReactiveFormsModule,
     RouterLink,
     MatSnackBarModule,
-    ProducerReputationComponent,
+    ProducerCardComponent,
     StarRatingComponent
   ],
   template: `
-    <section class="page-enter space-y-6">
-      <header class="glass-card border border-solar/25 p-6">
-        <div class="flex flex-wrap items-start justify-between gap-4">
+    <section class="page-enter mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <header class="mb-2 border-b border-zinc-800 pb-6">
+        <p class="text-xs text-zinc-600">SolarChain / Consommateur</p>
+        <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 class="bg-gradient-to-r from-solar-300 to-green-400 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl">
-              🛒 Marché Consommateur
-            </h1>
-            <p class="mt-2 text-sm text-text-secondary">Achetez l’énergie disponible au meilleur prix et suivez vos certificats.</p>
+            <h1 class="text-xl font-semibold text-zinc-100">Marche Consommateur</h1>
+            <p class="mt-0.5 text-sm text-zinc-500">Acheter l energie disponible et suivre les certificats.</p>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="rounded-xl border border-border-subtle bg-bg-elevated px-3 py-2 text-sm text-text-secondary">
-              Solde ETH: {{ web3Service.balance$.value | number: '1.4-6' }}
+          <div class="flex items-center gap-2">
+            <span class="rounded border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-mono text-zinc-300">
+              {{ web3Service.balance$.value | number: '1.4-6' }} ETH
             </span>
-            <a
-              routerLink="/certificates"
-              class="rounded-xl border border-green/35 bg-green-glow px-3 py-2 text-sm text-green-400 transition hover:border-green-400"
-            >
-              Certificats: {{ totalCertificates }}
-            </a>
+            <a routerLink="/certificates" class="btn-outline px-3 py-1.5 text-xs">Certificats: {{ totalCertificates }}</a>
           </div>
         </div>
       </header>
 
-      <section class="glass-card border border-border-subtle p-6">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <h2 class="text-lg font-semibold text-text-primary">Énergie disponible sur le marché</h2>
+      <section class="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
+        <header class="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 px-6 py-4">
+          <h2 class="text-sm font-medium text-zinc-200">Offres disponibles</h2>
 
           <div class="flex items-center gap-2">
-            <label class="text-xs uppercase tracking-wide text-text-secondary">Tri</label>
+            <label class="text-xs text-zinc-500">Tri</label>
             <select class="input-field w-auto min-w-[220px]" [value]="sortOrder" (change)="setSortOrder($event)">
               <option value="priceAsc">Prix croissant</option>
-              <option value="qtyDesc">Quantité disponible</option>
+              <option value="qtyDesc">Quantite disponible</option>
             </select>
           </div>
-        </div>
+        </header>
 
-        <p *ngIf="errorMessage" class="mt-4 rounded-xl border border-rose-500/40 bg-rose-900/30 p-3 text-sm text-rose-200">
-          {{ errorMessage }}
-        </p>
+        <div class="px-6 py-4">
+          <p *ngIf="errorMessage" class="mb-4 rounded-md border border-red-900 bg-red-950 px-3 py-2 text-xs text-red-400">
+            {{ errorMessage }}
+          </p>
 
-        <div *ngIf="!loading && sortedOffers.length === 0" class="mt-4 rounded-xl border border-border-subtle bg-bg-elevated p-4 text-sm text-text-secondary">
-          Aucune offre disponible pour le moment.
-        </div>
+          <div *ngIf="!loading && sortedOffers.length === 0" class="py-12 text-center">
+            <p class="text-sm font-medium text-zinc-500">Aucune offre disponible</p>
+            <p class="mt-1 text-xs text-zinc-600">Les nouvelles offres apparaitront ici.</p>
+          </div>
 
-        <div *ngIf="loading" class="mt-4 rounded-xl border border-border-subtle bg-bg-elevated p-4 text-sm text-text-secondary">
-          Chargement des offres...
-        </div>
+          <div *ngIf="loading" class="py-8">
+            <div class="skeleton h-10 w-full"></div>
+          </div>
 
-        <div *ngIf="sortedOffers.length > 0" class="mt-5 grid gap-4 lg:grid-cols-2">
-          <article *ngFor="let offer of sortedOffers" class="glass-card border border-solar/20 p-5">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <p class="text-xs uppercase tracking-wide text-text-secondary">Offre #{{ offer.id }}</p>
-                <p class="mt-1 text-sm text-text-secondary">Producteur {{ shortAddress(offer.producer) }}</p>
-                <div class="mt-2">
-                  <app-producer-reputation [producerAddress]="offer.producer"></app-producer-reputation>
-                </div>
-              </div>
-              <span class="rounded-full border border-solar/35 bg-solar-glow px-2 py-1 text-xs text-solar-300">
-                {{ toEth(offer.pricePerKwhWei) | number: '1.4-6' }} ETH/kWh
-              </span>
-            </div>
-
-            <div class="mt-3">
-              <p class="text-lg font-semibold text-text-primary">{{ offer.remainingKwh }} kWh disponibles</p>
-              <div class="mt-2 h-2 overflow-hidden rounded-full bg-bg-elevated">
-                <div class="h-full rounded-full bg-gradient-to-r from-green-400 to-solar-400" [style.width.%]="availabilityPercent(offer)"></div>
-              </div>
-            </div>
-
-            <div class="mt-4 flex items-center justify-between gap-3">
-              <p class="text-sm text-text-secondary">Total estimé (1 kWh): {{ toEth(offer.pricePerKwhWei) | number: '1.4-6' }} ETH</p>
-              <button class="btn-primary px-4 py-2 text-sm" (click)="openBuyModal(offer)">Acheter</button>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="glass-card border border-border-subtle p-6">
-        <div class="mb-3 flex items-center justify-between gap-3">
-          <h2 class="text-lg font-semibold text-text-primary">Mes achats</h2>
-          <span class="rounded-full border border-border-subtle bg-bg-elevated px-3 py-1 text-xs text-text-secondary">
-            {{ myTrades.length }} trade(s)
-          </span>
-        </div>
-
-        <div *ngIf="myTrades.length === 0" class="rounded-xl border border-border-subtle bg-bg-elevated p-4 text-sm text-text-secondary">
-          Aucun achat pour le moment.
-        </div>
-
-        <div *ngIf="myTrades.length > 0" class="space-y-3">
-          <article *ngFor="let trade of myTrades" class="rounded-xl border border-border-subtle bg-bg-elevated p-4">
-            <div class="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <p class="text-xs uppercase tracking-wide text-text-secondary">Trade #{{ trade.id }}</p>
-                <p class="mt-1 text-sm text-text-secondary">Producteur {{ shortAddress(trade.producer) }} • {{ trade.quantityKwh }} kWh</p>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <button
-                  *ngIf="canRateByTrade[trade.id]"
-                  class="btn-secondary px-3 py-1.5 text-xs"
-                  (click)="openRatePanel(trade)"
-                >
-                  ⭐ Noter
-                </button>
-
-                <div *ngIf="!canRateByTrade[trade.id] && myRatingByTrade[trade.id]" class="flex items-center gap-2">
-                  <app-star-rating [rating]="myRatingByTrade[trade.id]" [readonly]="true" size="sm"></app-star-rating>
-                  <span class="text-xs text-text-secondary">Note deja soumise</span>
-                </div>
-              </div>
-            </div>
-          </article>
+          <div *ngIf="sortedOffers.length > 0" class="overflow-x-auto">
+            <table class="table-shell min-w-full">
+              <thead>
+                <tr>
+                  <th>Producteur</th>
+                  <th>kWh disponibles</th>
+                  <th>Prix / kWh</th>
+                  <th>Total min</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let offer of sortedOffers">
+                  <td>
+                    <app-producer-card [producerAddress]="offer.producer" [compact]="true"></app-producer-card>
+                  </td>
+                  <td class="font-mono text-sm text-zinc-300">{{ offer.remainingKwh }}</td>
+                  <td class="font-mono text-xs text-zinc-400">{{ toEth(offer.pricePerKwhWei) | number: '1.4-6' }}</td>
+                  <td class="font-mono text-xs text-zinc-400">{{ toEth(offer.pricePerKwhWei) | number: '1.4-6' }} ETH</td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <button class="btn-outline px-3 py-1.5 text-xs" (click)="openProfileModal(offer.producer)">Voir le profil complet</button>
+                      <button class="btn-primary px-3 py-1.5 text-xs" (click)="openBuyModal(offer)">Acheter</button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
-      <div *ngIf="showBuyModal && selectedOffer" class="fixed inset-0 z-40 flex items-center justify-center bg-black/55 p-4">
-        <div class="glass-card w-full max-w-lg border border-solar/30 p-6">
+      <section class="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
+        <header class="flex items-center justify-between gap-3 border-b border-zinc-800 px-6 py-4">
+          <h2 class="text-sm font-medium text-zinc-200">Mes achats</h2>
+          <span class="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">{{ myTrades.length }}</span>
+        </header>
+
+        <div class="px-6 py-4">
+          <div *ngIf="myTrades.length === 0" class="py-12 text-center">
+            <p class="text-sm font-medium text-zinc-500">Aucun achat</p>
+            <p class="mt-1 text-xs text-zinc-600">Vos achats apparaitront dans cette section.</p>
+          </div>
+
+          <div *ngIf="myTrades.length > 0" class="overflow-x-auto">
+            <table class="table-shell min-w-full">
+              <thead>
+                <tr>
+                  <th>Trade</th>
+                  <th>Producteur</th>
+                  <th>kWh</th>
+                  <th>Notation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let trade of myTrades">
+                  <td class="font-mono text-xs text-zinc-400">#{{ trade.id }}</td>
+                  <td class="font-mono text-xs text-zinc-400">{{ trade.producer }}</td>
+                  <td class="font-mono text-sm text-zinc-300">{{ trade.quantityKwh }}</td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <button *ngIf="canRateByTrade[trade.id]" class="btn-outline px-3 py-1.5 text-xs" (click)="openRatePanel(trade)">
+                        Noter
+                      </button>
+
+                      <div *ngIf="!canRateByTrade[trade.id] && myRatingByTrade[trade.id]" class="flex items-center gap-2">
+                        <app-star-rating [rating]="myRatingByTrade[trade.id]" [readonly]="true" size="sm"></app-star-rating>
+                        <span class="text-xs text-zinc-500">Note soumise</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div *ngIf="showBuyModal && selectedOffer" class="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4">
+        <div class="w-full max-w-lg rounded-lg border border-zinc-800 bg-zinc-900 p-6">
           <div class="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 class="text-lg font-semibold text-text-primary">Confirmer l'achat</h3>
-              <p class="mt-1 text-sm text-text-secondary">Offre #{{ selectedOffer.id }} - {{ shortAddress(selectedOffer.producer) }}</p>
+              <h3 class="text-base font-medium text-zinc-200">Confirmer l achat</h3>
+              <p class="mt-1 text-xs text-zinc-500">Offre #{{ selectedOffer.id }} - {{ shortAddress(selectedOffer.producer) }}</p>
             </div>
-            <button class="btn-secondary px-3 py-1.5 text-xs" (click)="closeBuyModal()">Fermer</button>
+            <button class="btn-outline px-3 py-1.5 text-xs" (click)="closeBuyModal()">Fermer</button>
           </div>
 
           <form [formGroup]="buyForm" class="grid gap-4" (ngSubmit)="buy()">
             <div>
               <label class="form-label">Offer ID</label>
-              <input class="input-field" type="number" formControlName="offerId" readonly />
+              <input class="input-field font-mono" type="number" formControlName="offerId" readonly />
             </div>
 
             <div>
-              <label class="form-label">Quantité kWh</label>
-              <input class="input-field" type="number" formControlName="quantityKwh" />
+              <label class="form-label">Quantite kWh</label>
+              <input class="input-field font-mono" type="number" formControlName="quantityKwh" />
             </div>
 
-            <div class="rounded-xl border border-solar/35 bg-solar-glow px-3 py-2 text-sm text-solar-300">
-              Total estimé: {{ modalEstimatedTotalEth | number: '1.4-6' }} ETH
-            </div>
-
-            <div class="rounded-xl border border-border-subtle bg-bg-elevated px-3 py-2 text-sm text-text-secondary">
-              Résumé: achat de {{ buyForm.value.quantityKwh || 0 }} kWh à {{ toEth(selectedOffer.pricePerKwhWei) | number: '1.4-6' }} ETH/kWh.
+            <div class="rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-500">
+              Total estime: <span class="font-mono text-zinc-300">{{ modalEstimatedTotalEth | number: '1.4-6' }} ETH</span>
             </div>
 
             <div class="flex items-center justify-end gap-2">
               <button type="button" class="btn-secondary px-4 py-2" (click)="closeBuyModal()">Annuler</button>
-              <button class="btn-primary px-4 py-2" [disabled]="buyForm.invalid || loading">Confirmer achat</button>
+              <button class="btn-primary px-4 py-2" [disabled]="buyForm.invalid || loading">Confirmer</button>
             </div>
           </form>
         </div>
       </div>
 
-      <div *ngIf="showRatePanel && tradeToRate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4">
-        <div class="glass-card w-full max-w-lg border border-solar/30 p-6">
+      <div *ngIf="showProfileModal && selectedProducerAddress" class="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4">
+        <div class="w-full max-w-2xl rounded-lg border border-zinc-800 bg-zinc-900 p-6">
           <div class="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 class="text-lg font-semibold text-text-primary">Comment evaluez-vous cet achat ?</h3>
-              <p class="mt-1 text-sm text-text-secondary">Trade #{{ tradeToRate.id }} - Producteur {{ shortAddress(tradeToRate.producer) }}</p>
+              <h3 class="text-base font-medium text-zinc-200">Profil producteur</h3>
+              <p class="mt-1 text-xs text-zinc-500">Vue complete du profil IPFS et de la reputation.</p>
             </div>
-            <button class="btn-secondary px-3 py-1.5 text-xs" (click)="closeRatePanel()">Fermer</button>
+            <button class="btn-outline px-3 py-1.5 text-xs" (click)="closeProfileModal()">Fermer</button>
           </div>
 
-          <div class="rounded-xl border border-border-subtle bg-bg-elevated p-4">
+          <app-producer-card [producerAddress]="selectedProducerAddress" [compact]="false"></app-producer-card>
+        </div>
+      </div>
+
+      <div *ngIf="showRatePanel && tradeToRate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+        <div class="w-full max-w-lg rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+          <div class="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-base font-medium text-zinc-200">Evaluer cette transaction</h3>
+              <p class="mt-1 text-xs text-zinc-500">Trade #{{ tradeToRate.id }} - {{ shortAddress(tradeToRate.producer) }}</p>
+            </div>
+            <button class="btn-outline px-3 py-1.5 text-xs" (click)="closeRatePanel()">Fermer</button>
+          </div>
+
+          <div class="rounded-md border border-zinc-800 bg-zinc-950 p-4">
             <app-star-rating [rating]="pendingScore" size="lg" (ratingChange)="onPendingScoreChange($event)"></app-star-rating>
-            <p class="mt-2 text-sm text-text-secondary">Selection actuelle: {{ pendingScore || 0 }} / 5</p>
+            <p class="mt-2 text-xs text-zinc-500">Selection actuelle: {{ pendingScore || 0 }} / 5</p>
           </div>
 
           <div class="mt-4 flex items-center justify-end gap-2">
@@ -226,6 +241,8 @@ export class ConsumerPage {
   sortOrder: "priceAsc" | "qtyDesc" = "priceAsc";
   selectedOffer: Offer | null = null;
   showBuyModal = false;
+  selectedProducerAddress = "";
+  showProfileModal = false;
   totalCertificates = 0;
   myTrades: MarketTransaction[] = [];
   canRateByTrade: Record<number, boolean> = {};
@@ -306,6 +323,16 @@ export class ConsumerPage {
   closeBuyModal(): void {
     this.showBuyModal = false;
     this.selectedOffer = null;
+  }
+
+  openProfileModal(producerAddress: string): void {
+    this.selectedProducerAddress = producerAddress;
+    this.showProfileModal = true;
+  }
+
+  closeProfileModal(): void {
+    this.showProfileModal = false;
+    this.selectedProducerAddress = "";
   }
 
   openRatePanel(trade: MarketTransaction): void {

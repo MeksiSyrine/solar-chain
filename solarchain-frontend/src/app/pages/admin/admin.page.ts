@@ -4,125 +4,157 @@ import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar";
 import { Producer } from "../../core/models/producer.model";
 import { MeterOracleService } from "../../core/services/meter-oracle.service";
+import { ProducerProfileService } from "../../core/services/producer-profile.service";
+import { ProducerCardComponent } from "../../shared/components/producer-card/producer-card.component";
 import { environment } from "../../../environments/environment";
+import { pinataConfig } from "../../../environments/pinata.config";
 
 @Component({
   selector: "app-admin-page",
   standalone: true,
-  imports: [ReactiveFormsModule, NgIf, NgFor, MatSnackBarModule],
+  imports: [ReactiveFormsModule, NgIf, NgFor, MatSnackBarModule, ProducerCardComponent],
   template: `
-    <section class="page-enter space-y-6">
-      <header class="glass-card border border-solar/25 p-6">
-        <div class="flex flex-wrap items-start justify-between gap-4">
+    <section class="page-enter mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <header class="mb-2 border-b border-zinc-800 pb-6">
+        <p class="text-xs text-zinc-600">SolarChain / Admin</p>
+        <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 class="bg-gradient-to-r from-solar-300 to-solar-500 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl">
-              🛡️ Dashboard Admin
-            </h1>
-            <p class="mt-2 text-sm text-text-secondary">
-              Gérez les producteurs enregistrés et soumettez les lectures on-chain.
-            </p>
+            <h1 class="text-xl font-semibold text-zinc-100">Dashboard Admin</h1>
+            <p class="mt-0.5 text-sm text-zinc-500">Gerer les producteurs et soumettre les lectures compteur.</p>
           </div>
-
-          <div class="rounded-xl border border-solar/35 bg-solar-glow px-3 py-2 text-sm text-solar-300">
-            Admin: {{ shortAddress(adminAddress) }}
+          <div class="rounded border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-xs font-mono text-zinc-300">
+            {{ shortAddress(adminAddress) }}
           </div>
         </div>
       </header>
 
       <div class="grid gap-6 xl:grid-cols-2">
-        <article class="glass-card border border-solar/20 p-6">
-          <h2 class="text-lg font-semibold text-text-primary">Enregistrer un producteur</h2>
-          <p class="mt-1 text-sm text-text-secondary">Ajoutez un nouveau producteur avec sa capacité maximale.</p>
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900">
+          <header class="border-b border-zinc-800 px-6 py-4">
+            <h2 class="text-sm font-medium text-zinc-200">Nouveau producteur</h2>
+          </header>
 
-          <form [formGroup]="registerForm" class="mt-5 grid gap-4" (ngSubmit)="registerProducer()">
-            <div>
-              <label class="form-label">Adresse producteur</label>
-              <input class="input-field" formControlName="address" placeholder="0x..." />
-            </div>
+          <div class="px-6 py-4">
+            <form [formGroup]="registerForm" class="grid gap-4" (ngSubmit)="registerProducer()">
+              <div>
+                <label class="form-label">Adresse producteur</label>
+                <input class="input-field font-mono" formControlName="address" placeholder="0x..." />
+              </div>
 
-            <div>
-              <label class="form-label">Capacité max (kWh)</label>
-              <input class="input-field" type="number" formControlName="capacity" placeholder="Ex: 1200" />
-            </div>
+              <div>
+                <label class="form-label">Capacite max (kWh)</label>
+                <input class="input-field font-mono" type="number" formControlName="capacity" placeholder="1200" />
+              </div>
 
-            <button class="btn-primary mt-1 px-6 py-3" [disabled]="registerForm.invalid || loading">Enregistrer le producteur</button>
-          </form>
+              <div>
+                <button class="btn-primary px-4 py-2" [disabled]="registerForm.invalid || loading">Enregistrer</button>
+              </div>
+            </form>
+          </div>
         </article>
 
-        <article class="glass-card border border-green/25 p-6">
-          <h2 class="text-lg font-semibold text-text-primary">Soumettre une lecture compteur</h2>
-          <p class="mt-1 text-sm text-text-secondary">Chaque lecture valide le mint de SKWH correspondant.</p>
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900">
+          <header class="border-b border-zinc-800 px-6 py-4">
+            <h2 class="text-sm font-medium text-zinc-200">Lecture compteur</h2>
+          </header>
 
-          <form [formGroup]="readingForm" class="mt-5 grid gap-4" (ngSubmit)="submitReading()">
-            <div>
-              <label class="form-label">Adresse producteur</label>
-              <input class="input-field" formControlName="address" placeholder="0x..." />
-            </div>
+          <div class="px-6 py-4">
+            <form [formGroup]="readingForm" class="grid gap-4" (ngSubmit)="submitReading()">
+              <div>
+                <label class="form-label">Adresse producteur</label>
+                <input class="input-field font-mono" formControlName="address" placeholder="0x..." />
+              </div>
 
-            <div>
-              <label class="form-label">Production (kWh)</label>
-              <input class="input-field" type="number" formControlName="kwh" placeholder="Ex: 85" />
-            </div>
+              <div>
+                <label class="form-label">Production (kWh)</label>
+                <input class="input-field font-mono" type="number" formControlName="kwh" placeholder="85" />
+              </div>
 
-            <div class="rounded-xl border border-green/35 bg-green-glow px-3 py-2 text-sm text-green-400">
-              Preview: {{ readingForm.value.kwh || 0 }} SKWH seront mintés.
-            </div>
+              <p class="text-xs text-zinc-500">{{ readingForm.value.kwh || 0 }} SKWH seront emis.</p>
 
-            <button class="btn-primary mt-1 px-6 py-3" [disabled]="readingForm.invalid || loading">Soumettre la lecture</button>
-          </form>
+              <div>
+                <button class="btn-primary px-4 py-2" [disabled]="readingForm.invalid || loading">Soumettre</button>
+              </div>
+            </form>
+          </div>
         </article>
       </div>
 
-      <section class="glass-card border border-border-subtle p-6">
-        <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
-          <h2 class="text-lg font-semibold text-text-primary">Producteurs enregistrés</h2>
-          <span class="rounded-full border border-solar/35 bg-solar-glow px-3 py-1 text-xs text-solar-300">
-            Total: {{ producers.length }}
-          </span>
-        </div>
+      <section class="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
+        <header class="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800 px-6 py-4">
+          <h2 class="text-sm font-medium text-zinc-200">Producteurs enregistres</h2>
+          <span class="rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-400">{{ producers.length }}</span>
+        </header>
 
-        <div *ngIf="errorMessage" class="mb-4 rounded-xl border border-rose-500/40 bg-rose-900/30 p-3 text-sm text-rose-200">
-          {{ errorMessage }}
-        </div>
+        <div class="px-6 py-4">
+          <div *ngIf="errorMessage" class="mb-4 rounded-md border border-red-900 bg-red-950 px-3 py-2 text-xs text-red-400">
+            {{ errorMessage }}
+          </div>
 
-        <div *ngIf="!loading && producers.length === 0" class="rounded-xl border border-border-subtle bg-bg-elevated p-4 text-sm text-text-secondary">
-          Aucun producteur enregistré pour le moment.
-        </div>
+          <div *ngIf="!loading && producers.length === 0" class="py-12 text-center">
+            <p class="text-sm font-medium text-zinc-500">Aucun producteur</p>
+            <p class="mt-1 text-xs text-zinc-600">Les producteurs enregistres apparaitront ici.</p>
+          </div>
 
-        <div *ngIf="producers.length > 0" class="overflow-x-auto">
-          <table class="table-shell min-w-full">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Adresse</th>
-                <th>Capacité max</th>
-                <th>Total produit</th>
-                <th>Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let producer of producers">
-                <td class="font-medium text-text-primary">Producteur {{ shortAddress(producer.address) }}</td>
-                <td class="text-text-secondary">{{ shortAddress(producer.address) }}</td>
-                <td>{{ producer.maxCapacityKwh }} kWh</td>
-                <td>{{ producer.totalMintedKwh }} SKWH</td>
-                <td>
-                  <span
-                    class="rounded-full px-2 py-1 text-xs"
-                    [class.bg-green-glow]="producer.isRegistered"
-                    [class.text-green-400]="producer.isRegistered"
-                    [class.border]="true"
-                    [class.border-green/40]="producer.isRegistered"
-                    [class.bg-rose-900/30]="!producer.isRegistered"
-                    [class.text-rose-300]="!producer.isRegistered"
-                    [class.border-rose-500/40]="!producer.isRegistered"
-                  >
-                    {{ producer.isRegistered ? 'Actif' : 'Inactif' }}
-                  </span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div *ngIf="producers.length > 0" class="overflow-x-auto">
+            <table class="table-shell min-w-full">
+              <thead>
+                <tr>
+                  <th>Producteur</th>
+                  <th>Capacite max</th>
+                  <th>Total produit</th>
+                  <th>Statut</th>
+                  <th>Profil IPFS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let producer of producers">
+                  <td>
+                    <app-producer-card [producerAddress]="producer.address" [compact]="true"></app-producer-card>
+                  </td>
+                  <td class="font-mono text-sm text-zinc-300">{{ producer.maxCapacityKwh }}</td>
+                  <td class="font-mono text-sm text-zinc-300">{{ producer.totalMintedKwh }}</td>
+                  <td>
+                    <span
+                      class="inline-flex items-center rounded px-2 py-0.5 text-xs font-medium"
+                      [class.bg-green-950]="producer.isRegistered"
+                      [class.text-green-400]="producer.isRegistered"
+                      [class.border]="true"
+                      [class.border-green-900]="producer.isRegistered"
+                      [class.bg-zinc-800]="!producer.isRegistered"
+                      [class.text-zinc-500]="!producer.isRegistered"
+                      [class.border-zinc-700]="!producer.isRegistered"
+                    >
+                      {{ producer.isRegistered ? 'Actif' : 'Inactif' }}
+                    </span>
+                  </td>
+                  <td>
+                    <ng-container *ngIf="hasProfileByAddress[producer.address.toLowerCase()]; else noProfile">
+                      <div class="space-y-1">
+                        <span class="inline-flex items-center rounded border border-green-900 bg-green-950 px-2 py-0.5 text-xs text-green-400">
+                          Profil configure
+                        </span>
+                        <a
+                          *ngIf="profileCidByAddress[producer.address.toLowerCase()]"
+                          [href]="profileUrl(profileCidByAddress[producer.address.toLowerCase()])"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="block font-mono text-[11px] text-amber-400 hover:text-amber-300"
+                        >
+                          {{ shortCid(profileCidByAddress[producer.address.toLowerCase()]) }}
+                        </a>
+                      </div>
+                    </ng-container>
+                    <ng-template #noProfile>
+                      <span class="inline-flex items-center rounded border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-500">
+                        Pas de profil
+                      </span>
+                    </ng-template>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     </section>
@@ -131,6 +163,7 @@ import { environment } from "../../../environments/environment";
 export class AdminPage {
   private readonly formBuilder = inject(FormBuilder);
   private readonly meterOracleService = inject(MeterOracleService);
+  private readonly producerProfileService = inject(ProducerProfileService);
   private readonly snackBar = inject(MatSnackBar);
   readonly adminAddress = environment.adminAddress;
 
@@ -147,12 +180,26 @@ export class AdminPage {
   loading = false;
   errorMessage = "";
   producers: Producer[] = [];
+  profileCidByAddress: Record<string, string> = {};
+  hasProfileByAddress: Record<string, boolean> = {};
 
   shortAddress(address: string): string {
     if (!address) {
       return "-";
     }
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  }
+
+  shortCid(cid: string): string {
+    if (!cid) {
+      return "";
+    }
+
+    return `${cid.slice(0, 10)}...${cid.slice(-6)}`;
+  }
+
+  profileUrl(cid: string): string {
+    return `${pinataConfig.gateway}${cid}`;
   }
 
   constructor() {
@@ -216,9 +263,49 @@ export class AdminPage {
   private async loadProducers() {
     try {
       this.producers = await this.meterOracleService.getAllProducers();
+      await this.loadProfileStatus(this.producers);
     } catch (error) {
       this.errorMessage = (error as Error).message;
       this.producers = [];
+      this.profileCidByAddress = {};
+      this.hasProfileByAddress = {};
     }
+  }
+
+  private async loadProfileStatus(producers: Producer[]): Promise<void> {
+    const entries = await Promise.all(
+      producers.map(async (producer) => {
+        const key = producer.address.toLowerCase();
+        try {
+          const [hasProfile, cid] = await Promise.all([
+            this.producerProfileService.hasProfile(producer.address),
+            this.producerProfileService.getProfileCID(producer.address)
+          ]);
+
+          return {
+            key,
+            hasProfile,
+            cid
+          };
+        } catch {
+          return {
+            key,
+            hasProfile: false,
+            cid: ""
+          };
+        }
+      })
+    );
+
+    const hasMap: Record<string, boolean> = {};
+    const cidMap: Record<string, string> = {};
+
+    for (const item of entries) {
+      hasMap[item.key] = item.hasProfile;
+      cidMap[item.key] = item.cid;
+    }
+
+    this.hasProfileByAddress = hasMap;
+    this.profileCidByAddress = cidMap;
   }
 }

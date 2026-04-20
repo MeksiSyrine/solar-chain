@@ -18,46 +18,51 @@ import { StarRatingComponent } from "../../shared/components/star-rating/star-ra
   standalone: true,
   imports: [DatePipe, DecimalPipe, ReactiveFormsModule, NgIf, NgFor, MatSnackBarModule, StarRatingComponent],
   template: `
-    <section class="page-enter space-y-6">
-      <header class="glass-card border border-solar/25 p-6">
-        <h1 class="bg-gradient-to-r from-solar-300 to-green-400 bg-clip-text text-2xl font-bold text-transparent sm:text-3xl">
-          📜 Historique des transactions
-        </h1>
-        <p class="mt-2 text-sm text-text-secondary">Suivez les échanges on-chain et analysez les volumes du marché.</p>
-
-        <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <div class="rounded-xl border border-solar/30 bg-solar-glow px-4 py-3">
-            <p class="text-xs uppercase tracking-wide text-solar-300">Total trades</p>
-            <p class="mt-1 text-2xl font-bold text-text-primary">{{ transactions.length }}</p>
-          </div>
-          <div class="rounded-xl border border-green/30 bg-green-glow px-4 py-3">
-            <p class="text-xs uppercase tracking-wide text-green-400">Volume ETH</p>
-            <p class="mt-1 text-2xl font-bold text-text-primary">{{ totalVolumeEth | number: '1.4-6' }}</p>
-          </div>
-          <div class="rounded-xl border border-border-subtle bg-bg-elevated px-4 py-3">
-            <p class="text-xs uppercase tracking-wide text-text-secondary">kWh échangés</p>
-            <p class="mt-1 text-2xl font-bold text-text-primary">{{ totalKwh }}</p>
-          </div>
-
-          <div class="rounded-xl border border-solar/30 bg-bg-elevated px-4 py-3 sm:col-span-2 lg:col-span-3">
-            <p class="text-xs uppercase tracking-wide text-text-secondary">Producteur le mieux noté</p>
-            <div *ngIf="bestRatedProducerAddress; else noBestRatedProducer" class="mt-2 flex flex-wrap items-center gap-2">
-              <span class="text-sm text-text-secondary">{{ shortAddress(bestRatedProducerAddress) }}</span>
-              <app-star-rating [rating]="bestRatedAverage" [readonly]="true" size="sm"></app-star-rating>
-              <span class="text-sm text-solar-300">{{ bestRatedAverage | number: '1.2-2' }} / 5.00</span>
-            </div>
-            <ng-template #noBestRatedProducer>
-              <p class="mt-2 text-sm text-text-secondary">Aucun producteur note pour le moment.</p>
-            </ng-template>
-          </div>
+    <section class="page-enter mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 lg:px-8">
+      <header class="mb-2 border-b border-zinc-800 pb-6">
+        <p class="text-xs text-zinc-600">SolarChain / Historique</p>
+        <div class="mt-2">
+          <h1 class="text-xl font-semibold text-zinc-100">Historique des transactions</h1>
+          <p class="mt-0.5 text-sm text-zinc-500">Suivi des volumes et des transactions on-chain.</p>
         </div>
       </header>
 
-      <section class="glass-card border border-border-subtle p-6">
+      <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+          <p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Total trades</p>
+          <p class="mt-1 text-2xl font-semibold font-mono text-zinc-100">{{ transactions.length }}</p>
+        </article>
+
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+          <p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Volume ETH</p>
+          <p class="mt-1 text-2xl font-semibold font-mono text-zinc-100">{{ totalVolumeEth | number: '1.4-6' }}</p>
+        </article>
+
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+          <p class="text-xs font-medium uppercase tracking-wider text-zinc-500">kWh total</p>
+          <p class="mt-1 text-2xl font-semibold font-mono text-zinc-100">{{ totalKwh }}</p>
+        </article>
+
+        <article class="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+          <p class="text-xs font-medium uppercase tracking-wider text-zinc-500">Meilleure reputation</p>
+          <div *ngIf="bestRatedProducerAddress; else noBestRatedProducer" class="mt-1 space-y-1">
+            <p class="font-mono text-xs text-zinc-400">{{ shortAddress(bestRatedProducerAddress) }}</p>
+            <div class="flex items-center gap-2">
+              <app-star-rating [rating]="bestRatedAverage" [readonly]="true" size="sm"></app-star-rating>
+              <span class="text-xs text-zinc-400">{{ bestRatedAverage | number: '1.2-2' }} / 5.00</span>
+            </div>
+          </div>
+          <ng-template #noBestRatedProducer>
+            <p class="mt-1 text-xs text-zinc-500">Aucun producteur note</p>
+          </ng-template>
+        </article>
+      </section>
+
+      <section class="rounded-lg border border-zinc-800 bg-zinc-900 px-6 py-4">
         <div class="grid gap-3 lg:grid-cols-3">
           <div class="lg:col-span-2">
             <label class="form-label">Adresse (producteur/consommateur)</label>
-            <input class="input-field" formControlName="address" [formGroup]="filters" placeholder="0x..." />
+            <input class="input-field font-mono" formControlName="address" [formGroup]="filters" placeholder="0x..." />
           </div>
 
           <div>
@@ -66,95 +71,119 @@ import { StarRatingComponent } from "../../shared/components/star-rating/star-ra
           </div>
         </div>
 
-        <div class="mt-4 flex flex-wrap items-center gap-2">
-          <button class="btn-secondary px-4 py-2 text-sm" [class.btn-primary]="viewMode === 'all'" (click)="setViewMode('all')">Tous</button>
-          <button class="btn-secondary px-4 py-2 text-sm" [class.btn-primary]="viewMode === 'buys'" (click)="setViewMode('buys')">Mes achats</button>
-          <button class="btn-secondary px-4 py-2 text-sm" [class.btn-primary]="viewMode === 'sales'" (click)="setViewMode('sales')">Mes ventes</button>
-          <button class="btn-secondary ml-auto px-4 py-2 text-sm" (click)="resetFilters()">Reset</button>
+        <div class="mt-4 flex flex-wrap items-center gap-4 border-b border-zinc-800 pb-2 text-sm">
+          <button
+            class="pb-2 text-zinc-400 transition-colors duration-150 hover:text-zinc-200"
+            [class.border-b-2]="viewMode === 'all'"
+            [class.border-amber-500]="viewMode === 'all'"
+            [class.text-zinc-100]="viewMode === 'all'"
+            (click)="setViewMode('all')"
+          >
+            Toutes
+          </button>
+          <button
+            class="pb-2 text-zinc-400 transition-colors duration-150 hover:text-zinc-200"
+            [class.border-b-2]="viewMode === 'buys'"
+            [class.border-amber-500]="viewMode === 'buys'"
+            [class.text-zinc-100]="viewMode === 'buys'"
+            (click)="setViewMode('buys')"
+          >
+            Mes achats
+          </button>
+          <button
+            class="pb-2 text-zinc-400 transition-colors duration-150 hover:text-zinc-200"
+            [class.border-b-2]="viewMode === 'sales'"
+            [class.border-amber-500]="viewMode === 'sales'"
+            [class.text-zinc-100]="viewMode === 'sales'"
+            (click)="setViewMode('sales')"
+          >
+            Mes ventes
+          </button>
+          <button class="btn-outline ml-auto px-3 py-1.5 text-xs" (click)="resetFilters()">Reset</button>
         </div>
       </section>
 
-      <section class="glass-card border border-border-subtle p-6">
-        <p *ngIf="errorMessage" class="mb-4 rounded-xl border border-rose-500/40 bg-rose-900/30 p-3 text-sm text-rose-200">
-          {{ errorMessage }}
-        </p>
+      <section class="rounded-lg border border-zinc-800 bg-zinc-900 overflow-hidden">
+        <div class="px-6 py-4">
+          <p *ngIf="errorMessage" class="mb-4 rounded-md border border-red-900 bg-red-950 px-3 py-2 text-xs text-red-400">
+            {{ errorMessage }}
+          </p>
 
-        <div *ngIf="!errorMessage && transactions.length === 0" class="rounded-xl border border-border-subtle bg-bg-elevated p-4 text-sm text-text-secondary">
-          Aucun trade enregistré pour le moment.
-        </div>
-
-        <div *ngIf="!errorMessage && transactions.length > 0 && filteredTransactions.length === 0" class="rounded-xl border border-border-subtle bg-bg-elevated p-4 text-sm text-text-secondary">
-          Aucun résultat avec les filtres actuels.
-        </div>
-
-        <div *ngIf="filteredTransactions.length > 0" class="overflow-x-auto">
-          <table class="table-shell min-w-full">
-            <thead>
-              <tr>
-                <th>#ID</th>
-                <th>Date</th>
-                <th>Acheteur</th>
-                <th>Vendeur</th>
-                <th>kWh</th>
-                <th>Prix ETH</th>
-                <th>Réputation</th>
-                <th>TX Hash</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let tx of filteredTransactions">
-                <td>#{{ tx.id }}</td>
-                <td>{{ tx.timestamp * 1000 | date: 'short' }}</td>
-                <td>{{ shortAddress(tx.consumer) }}</td>
-                <td>{{ shortAddress(tx.producer) }}</td>
-                <td>{{ tx.quantityKwh }}</td>
-                <td>{{ toEth(tx.totalPriceWei) }}</td>
-                <td>
-                  <div class="flex min-w-[180px] flex-col gap-1">
-                    <app-star-rating [rating]="producerRatingByAddress[tx.producer.toLowerCase()] || 0" [readonly]="true" size="sm"></app-star-rating>
-                    <button
-                      *ngIf="canRateByTrade[tx.id]"
-                      class="inline-flex w-fit items-center rounded-md border border-solar/35 bg-solar-glow px-2 py-1 text-xs text-solar-300 hover:border-solar-400"
-                      (click)="openRatePanel(tx)"
-                    >
-                      ⭐ Noter
-                    </button>
-                    <span *ngIf="!canRateByTrade[tx.id] && myRatingByTrade[tx.id]" class="text-xs text-text-secondary">
-                      Votre note: {{ myRatingByTrade[tx.id] }}/5
-                    </span>
-                  </div>
-                </td>
-                <td>
-                  <a
-                    *ngIf="txHashByTradeId[tx.id]"
-                    [href]="txLink(txHashByTradeId[tx.id])"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="text-solar-300 underline decoration-solar/40 underline-offset-2 hover:text-solar-400"
-                  >
-                    {{ shortHash(txHashByTradeId[tx.id]) }}
-                  </a>
-                  <span *ngIf="!txHashByTradeId[tx.id]" class="text-text-muted">N/A</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <div *ngIf="showRatePanel && tradeToRate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4">
-        <div class="glass-card w-full max-w-lg border border-solar/30 p-6">
-          <div class="mb-4 flex items-start justify-between gap-3">
-            <div>
-              <h3 class="text-lg font-semibold text-text-primary">Noter cette transaction</h3>
-              <p class="mt-1 text-sm text-text-secondary">Trade #{{ tradeToRate.id }} - Producteur {{ shortAddress(tradeToRate.producer) }}</p>
-            </div>
-            <button class="btn-secondary px-3 py-1.5 text-xs" (click)="closeRatePanel()">Fermer</button>
+          <div *ngIf="!errorMessage && transactions.length === 0" class="py-12 text-center">
+            <p class="text-sm font-medium text-zinc-500">Aucun trade</p>
+            <p class="mt-1 text-xs text-zinc-600">Les transactions apparaitront ici.</p>
           </div>
 
-          <div class="rounded-xl border border-border-subtle bg-bg-elevated p-4">
+          <div *ngIf="!errorMessage && transactions.length > 0 && filteredTransactions.length === 0" class="py-12 text-center">
+            <p class="text-sm font-medium text-zinc-500">Aucun resultat</p>
+            <p class="mt-1 text-xs text-zinc-600">Essayez avec des filtres differents.</p>
+          </div>
+
+          <div *ngIf="filteredTransactions.length > 0" class="overflow-x-auto">
+            <table class="table-shell min-w-full">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Acheteur</th>
+                  <th>Vendeur</th>
+                  <th>kWh</th>
+                  <th>Prix ETH</th>
+                  <th>Reputation</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let tx of filteredTransactions">
+                  <td class="font-mono text-xs text-zinc-400">{{ tx.id }}</td>
+                  <td class="text-sm text-zinc-300">{{ tx.timestamp * 1000 | date: 'dd MMM y, HH:mm' }}</td>
+                  <td class="font-mono text-xs text-zinc-400">{{ tx.consumer }}</td>
+                  <td class="font-mono text-xs text-zinc-400">{{ tx.producer }}</td>
+                  <td class="font-mono text-sm text-zinc-300">{{ tx.quantityKwh }}</td>
+                  <td class="font-mono text-xs text-zinc-400">{{ toEth(tx.totalPriceWei) }}</td>
+                  <td>
+                    <div class="flex min-w-[180px] flex-col gap-1">
+                      <app-star-rating [rating]="producerRatingByAddress[tx.producer.toLowerCase()] || 0" [readonly]="true" size="sm"></app-star-rating>
+                      <button *ngIf="canRateByTrade[tx.id]" class="btn-outline w-fit px-2 py-1 text-xs" (click)="openRatePanel(tx)">
+                        Noter
+                      </button>
+                      <span *ngIf="!canRateByTrade[tx.id] && myRatingByTrade[tx.id]" class="text-xs text-zinc-500">
+                        Votre note: {{ myRatingByTrade[tx.id] }}/5
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <a
+                      *ngIf="txHashByTradeId[tx.id]"
+                      [href]="txLink(txHashByTradeId[tx.id])"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="font-mono text-xs text-zinc-400 underline decoration-zinc-700 underline-offset-2 hover:text-zinc-200"
+                    >
+                      {{ shortHash(txHashByTradeId[tx.id]) }}
+                    </a>
+                    <span *ngIf="!txHashByTradeId[tx.id]" class="text-xs text-zinc-600">N/A</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div *ngIf="showRatePanel && tradeToRate" class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+        <div class="w-full max-w-lg rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+          <div class="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-base font-medium text-zinc-200">Noter cette transaction</h3>
+              <p class="mt-1 text-xs text-zinc-500">Trade #{{ tradeToRate.id }} - {{ shortAddress(tradeToRate.producer) }}</p>
+            </div>
+            <button class="btn-outline px-3 py-1.5 text-xs" (click)="closeRatePanel()">Fermer</button>
+          </div>
+
+          <div class="rounded-md border border-zinc-800 bg-zinc-950 p-4">
             <app-star-rating [rating]="pendingScore" size="lg" (ratingChange)="onPendingScoreChange($event)"></app-star-rating>
-            <p class="mt-2 text-sm text-text-secondary">Selection actuelle: {{ pendingScore || 0 }} / 5</p>
+            <p class="mt-2 text-xs text-zinc-500">Selection actuelle: {{ pendingScore || 0 }} / 5</p>
           </div>
 
           <div class="mt-4 flex items-center justify-end gap-2">
